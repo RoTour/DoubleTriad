@@ -1,3 +1,3 @@
 export type Builder<T> = {
-	build: () => T;
+	build: (init?: any) => T;
 }

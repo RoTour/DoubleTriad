@@ -1,4 +1,5 @@
 import type { Builder } from '$lib/entities/Builder';
+import { EventManager } from '$lib/entities/EventManager';
 import { PlayerBuilder, type Player } from '../aggregates/Player';
 import type { Card } from './Card';
 
@@ -6,6 +7,11 @@ export type Board = {
 	leftPlayer: Player;
 	rightPlayer: Player;
 	cards: Card[];
+	turn: Player;
+	events: {
+		cardPlaced: EventManager<Card>;
+	};
+	onCardPlaced: (fn: (card: Card) => void) => void;
 }
 
 export type BoardBuilder = Builder<Board> & {
@@ -15,10 +21,19 @@ export type BoardBuilder = Builder<Board> & {
 };
 
 export const BoardBuilder = (): BoardBuilder => {
+	const _leftPlayer = PlayerBuilder().build();
+	const _rightPlayer = PlayerBuilder().build();
 	const board: Board = {
-		leftPlayer: PlayerBuilder().build(),
-		rightPlayer: PlayerBuilder().build(),
-		cards: []
+		leftPlayer: _leftPlayer,
+		rightPlayer: _rightPlayer,
+		cards: [],
+		turn: _leftPlayer,
+		events: {
+			cardPlaced: EventManager<Card>()
+		},
+		onCardPlaced: (fn) => {
+			board.events.cardPlaced.subscribe(fn)
+		}
 	};
 
 	return {
@@ -34,7 +49,16 @@ export const BoardBuilder = (): BoardBuilder => {
 			board.cards.push(card);
 			return this;
 		},
-		build: function () {
+		build: function (init?: { turn: Player }) {
+			// Randomly choose who goes first if not specified
+			const firstPlayerToPlay = init?.turn || (Math.random() < 0.5 ? board.leftPlayer : board.rightPlayer);
+			board.turn = firstPlayerToPlay;
+
+			// Switch turns after a card is placed
+			board.events.cardPlaced.subscribe(() => {
+				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
+			});
+
 			return board;
 		}
 	}

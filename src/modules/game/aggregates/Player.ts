@@ -11,6 +11,11 @@ export type Player = {
 }
 
 const placeCard = function(this: Player, card: Card, board: Board, positionIndex: number) {
+	const isPlayerTurn = board.turn === this;
+	if (!isPlayerTurn) {
+		throw new Error('It is not your turn');
+	}
+	
 	const cardExists = this.cardsInHand.some(c => c === card);
 	if (!cardExists) {
 		throw new Error('Player does not own the card');
@@ -27,6 +32,7 @@ const placeCard = function(this: Player, card: Card, board: Board, positionIndex
 	}
 	
 	board.cards[positionIndex] = card;
+	board.events.cardPlaced.emit(card);
 };
 
 export type PlayerBuilder = Builder<Player> & {
