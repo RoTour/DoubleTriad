@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PlayerBuilder } from '../aggregates/Player';
 import { BoardBuilder } from '../entities/Board';
-import { CardBuilder } from '../entities/Card';
+import { CardBuilder, type Card } from '../entities/Card';
 
 describe('GameEngine', () => {
 	const leftPlayerBuilder = PlayerBuilder().withId('1').withName('Player 1').withScore(0);
@@ -116,5 +116,24 @@ describe('GameEngine', () => {
 		leftPlayer.placeCard(placedCard, board, 0);
 
 		expect(detectedPosition).toBe(0);
+	});
+
+	it('should remove card from player hand after placing it on the board', () => {
+		const leftPlayerDeck: Card[] = [
+			CardBuilder().withTop(1).build(),
+			CardBuilder().withBottom(2).build(),
+		];
+		const rightPlayerDeck: Card[] = [
+			CardBuilder().withLeft(1).build(),
+		];
+		const leftPlayer = leftPlayerBuilder.withCardsInHand(leftPlayerDeck).build();
+		const rightPlayer = rightPlayerBuilder.withCardsInHand(rightPlayerDeck).build();
+		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+
+		leftPlayer.placeCard(leftPlayerDeck[0], board, 0);
+		rightPlayer.placeCard(rightPlayerDeck[0], board, 1);
+		const attemptToPlaceCardTwice = () => leftPlayer.placeCard(leftPlayerDeck[0], board, 2);
+
+		expect(attemptToPlaceCardTwice).toThrowError('Player does not own the card');
 	});
 });

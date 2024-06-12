@@ -31,6 +31,7 @@ const placeCard = function (this: Player, card: Card, board: Board, positionInde
 		throw new Error('Position is already occupied');
 	}
 
+	this.cardsInHand = this.cardsInHand.filter((c) => c !== card);
 	board.placedCards[positionIndex] = { card: card, player: this };
 	board.events.cardPlaced.emit({ card, player: this, position: positionIndex });
 };

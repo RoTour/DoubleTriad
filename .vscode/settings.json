@@ -1,5 +1,6 @@
 {
   "conventionalCommits.scopes": [
-    "game engine"
+    "game engine",
+    "card placement"
   ]
 }
