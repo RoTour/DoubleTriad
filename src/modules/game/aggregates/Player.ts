@@ -8,15 +8,15 @@ export type Player = {
 	score: number;
 	cardsInHand: Card[];
 	placeCard: (card: Card, board: Board, positionIndex: number) => void;
-}
+};
 
-const placeCard = function(this: Player, card: Card, board: Board, positionIndex: number) {
+const placeCard = function (this: Player, card: Card, board: Board, positionIndex: number) {
 	const isPlayerTurn = board.turn === this;
 	if (!isPlayerTurn) {
 		throw new Error('It is not your turn');
 	}
-	
-	const cardExists = this.cardsInHand.some(c => c === card);
+
+	const cardExists = this.cardsInHand.some((c) => c === card);
 	if (!cardExists) {
 		throw new Error('Player does not own the card');
 	}
@@ -26,13 +26,13 @@ const placeCard = function(this: Player, card: Card, board: Board, positionIndex
 		throw new Error('Position is out of bounds');
 	}
 
-	const isPositionEmpty = board.cards[positionIndex] === undefined;
+	const isPositionEmpty = board.placedCards[positionIndex] === undefined;
 	if (!isPositionEmpty) {
 		throw new Error('Position is already occupied');
 	}
-	
-	board.cards[positionIndex] = card;
-	board.events.cardPlaced.emit(card);
+
+	board.placedCards[positionIndex] = { card: card, player: this };
+	board.events.cardPlaced.emit({ card, player: this, position: positionIndex });
 };
 
 export type PlayerBuilder = Builder<Player> & {
@@ -71,5 +71,5 @@ export const PlayerBuilder = (): PlayerBuilder => {
 		build: function () {
 			return player;
 		}
-	}
-}
+	};
+};

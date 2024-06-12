@@ -8,10 +8,10 @@ export type Card = {
 }
 
 export type CardBuilder = Builder<Card> & {
-	withLeft: (left: number) => Card;
-	withTop: (top: number) => Card
-	withRight: (right: number) => Card
-	withBottom: (bottom: number) => Card
+	withLeft: (left: number) => CardBuilder;
+	withTop: (top: number) => CardBuilder;
+	withRight: (right: number) => CardBuilder;
+	withBottom: (bottom: number) => CardBuilder;
 };
 
 export const CardBuilder = (): CardBuilder => {
@@ -25,19 +25,19 @@ export const CardBuilder = (): CardBuilder => {
 	return {
 		withLeft: function (left: number) {
 			card.left = left;
-			return card;
+			return this;
 		},
 		withTop: function (top: number) {
 			card.top = top;
-			return card;
+			return this;
 		},
 		withRight: function (right: number) {
 			card.right = right;
-			return card;
+			return this;
 		},
 		withBottom: function (bottom: number) {
 			card.bottom = bottom;
-			return card;
+			return this;
 		},
 		build: function () {
 			return card;

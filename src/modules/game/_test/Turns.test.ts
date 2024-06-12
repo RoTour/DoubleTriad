@@ -28,7 +28,7 @@ describe('Unit:Turns', () => {
 	});
 
 	it('should switch turn after a card is placed', () => {
-		const leftPlayer = leftPlayerBuilder.build();
+		const leftPlayer = leftPlayerBuilder.withCardsInHand([placedCard]).build();
 		const rightPlayer = rightPlayerBuilder.build();
 		const board = BoardBuilder()
 			.withLeftPlayer(leftPlayer)

@@ -1,23 +1,27 @@
 import type { Builder } from '$lib/entities/Builder';
 import { EventManager } from '$lib/entities/EventManager';
+import type { GameEngine } from '../aggregates/GameEngine';
+import type { PlacedCard } from '../aggregates/PlacedCard';
 import { PlayerBuilder, type Player } from '../aggregates/Player';
-import type { Card } from './Card';
+import { CardPlacedEvent } from '../events/CardPlacedEvent';
 
 export type Board = {
 	leftPlayer: Player;
 	rightPlayer: Player;
-	cards: Card[];
+	placedCards: PlacedCard[];
 	turn: Player;
 	events: {
-		cardPlaced: EventManager<Card>;
+		cardPlaced: CardPlacedEvent.Manager;
+		battleStarted: EventManager<void>;
 	};
-	onCardPlaced: (fn: (card: Card) => void) => void;
+	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
 }
 
 export type BoardBuilder = Builder<Board> & {
 	withLeftPlayer: (player: Player) => BoardBuilder;
 	withRightPlayer: (player: Player) => BoardBuilder;
-	withCard: (card: Card) => BoardBuilder;
+	withPlayedCards: (cards: PlacedCard[]) => BoardBuilder;
+	withExistingCardPlayed: (index: number, card: PlacedCard) => BoardBuilder;
 };
 
 export const BoardBuilder = (): BoardBuilder => {
@@ -26,14 +30,15 @@ export const BoardBuilder = (): BoardBuilder => {
 	const board: Board = {
 		leftPlayer: _leftPlayer,
 		rightPlayer: _rightPlayer,
-		cards: [],
+		placedCards: [],
 		turn: _leftPlayer,
 		events: {
-			cardPlaced: EventManager<Card>()
+			cardPlaced: CardPlacedEvent.Manager,
+			battleStarted: EventManager<void>(),
 		},
 		onCardPlaced: (fn) => {
 			board.events.cardPlaced.subscribe(fn)
-		}
+		},
 	};
 
 	return {
@@ -45,8 +50,12 @@ export const BoardBuilder = (): BoardBuilder => {
 			board.rightPlayer = player;
 			return this;
 		},
-		withCard: function (card: Card) {
-			board.cards.push(card);
+		withPlayedCards: function (cards: PlacedCard[]) {
+			board.placedCards = cards;
+			return this;
+		},
+		withExistingCardPlayed: function (index: number, card: PlacedCard) {
+			board.placedCards[index] = card;
 			return this;
 		},
 		build: function (init?: { turn: Player }) {

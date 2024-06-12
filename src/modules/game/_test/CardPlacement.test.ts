@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { PlayerBuilder } from '../aggregates/Player';
 import { BoardBuilder } from '../entities/Board';
 import { CardBuilder } from '../entities/Card';
@@ -17,7 +17,7 @@ describe('GameEngine', () => {
 
 		leftPlayer.placeCard(placedCard, board, 0);
 
-		expect(board.cards).toContain(placedCard);
+		expect(board.placedCards.map((it) => it.card)).toContain(placedCard);
 	});
 
 	it('should place the card in the correct position', () => {
@@ -30,9 +30,9 @@ describe('GameEngine', () => {
 
 		leftPlayer.placeCard(placedCard, board, 2);
 
-		expect(board.cards.at(2)).toBe(placedCard);
-		expect(board.cards.at(0)).not.toBe(placedCard);
-		expect(board.cards.at(1)).not.toBe(placedCard);
+		expect(board.placedCards.at(2)?.card).toBe(placedCard);
+		expect(board.placedCards.at(0)?.card).not.toBe(placedCard);
+		expect(board.placedCards.at(1)?.card).not.toBe(placedCard);
 	});
 
 	it('error should be thrown if player tries placing a card he doesnt have in his hand', () => {
@@ -88,18 +88,33 @@ describe('GameEngine', () => {
 		expect(detected).toBe(true);
 	});
 
-	it('should emitted event transfer card data', () => {
+	it('emitted event should transfer card data', () => {
 		leftPlayerBuilder.withCardsInHand([placedCard]);
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
 		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
 		let detectedCard = null;
-		board.onCardPlaced((cardFromEvent) => {
-			detectedCard = cardFromEvent;
+		board.onCardPlaced(({ card }) => {
+			detectedCard = card;
 		});
 
 		leftPlayer.placeCard(placedCard, board, 0);
 
 		expect(detectedCard).toBe(placedCard);
+	});
+
+	it('emitted event should transfer card position', () => {
+		leftPlayerBuilder.withCardsInHand([placedCard]);
+		const leftPlayer = leftPlayerBuilder.build();
+		const rightPlayer = rightPlayerBuilder.build();
+		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		let detectedPosition = null;
+		board.onCardPlaced(({position}) => {
+			detectedPosition = position;
+		});
+
+		leftPlayer.placeCard(placedCard, board, 0);
+
+		expect(detectedPosition).toBe(0);
 	});
 });
