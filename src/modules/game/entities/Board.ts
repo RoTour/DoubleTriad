@@ -1,6 +1,5 @@
 import type { Builder } from '$lib/entities/Builder';
 import { EventManager } from '$lib/entities/EventManager';
-import type { GameEngine } from '../aggregates/GameEngine';
 import type { PlacedCard } from '../aggregates/PlacedCard';
 import { PlayerBuilder, type Player } from '../aggregates/Player';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
