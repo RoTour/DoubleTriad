@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PlayerBuilder } from '../aggregates/Player';
-import { CardBuilder, type Card } from '../entities/Card';
-import { BoardBuilder } from '../entities/Board';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { GameEngineBuilder } from '../aggregates/GameEngine';
-import type { AdjacentEnemeies } from '../events/BattleStartedEvent';
 import type { PlacedCard } from '../aggregates/PlacedCard';
+import { PlayerBuilder } from '../aggregates/Player';
+import { BoardBuilder } from '../entities/Board';
+import { CardBuilder, type Card } from '../entities/Card';
+import type { AdjacentEnemeies } from '../events/BattleStartedEvent';
 
 describe('Unit:GameEngine', () => {
 	let leftPlayerBuilder: PlayerBuilder;
@@ -132,7 +132,7 @@ describe('Unit:GameEngine', () => {
 		const rightPlayer = rightPlayerBuilder.build();
 		const leftPlayer = leftPlayerBuilder.build();
 		const engine = GameEngineBuilder().build();
-		const cardToBeChanged: PlacedCard = {card: CardBuilder().build(), player: rightPlayer};
+		const cardToBeChanged: PlacedCard = { card: CardBuilder().build(), player: rightPlayer };
 		const beatenEnemies: PlacedCard[] = [cardToBeChanged];
 
 		engine.changeOwner(beatenEnemies, leftPlayer);
@@ -141,15 +141,14 @@ describe('Unit:GameEngine', () => {
 	});
 
 	it('should change ownership of beaten cards when card is placed', () => {
-		const leftPlayerDeck = [
-			CardBuilder().withBottom(0).build(),
-		];
-		const rightPlayerDeck = [
-			CardBuilder().withTop(1).build(),
-		];
+		const leftPlayerDeck = [CardBuilder().withBottom(0).build()];
+		const rightPlayerDeck = [CardBuilder().withTop(1).build()];
 		const leftPlayer = leftPlayerBuilder.withCardsInHand(leftPlayerDeck).build();
 		const rightPlayer = rightPlayerBuilder.withCardsInHand(rightPlayerDeck).build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 		const engine = GameEngineBuilder().withBoard(board).build();
 
 		/*
@@ -162,5 +161,42 @@ describe('Unit:GameEngine', () => {
 
 		expect(engine.board.placedCards[1].player.name).toBe(rightPlayer.name);
 		expect(engine.board.placedCards[4].player.name).toBe(rightPlayer.name);
+	});
+
+	it('should trigger end of game event when no more cards can be placed', () => {
+		const cardsOnBoard = [
+			CardBuilder().withTop(1).withRight(1).withBottom(1).withLeft(1).build(),
+			CardBuilder().withTop(2).withRight(2).withBottom(2).withLeft(2).build(),
+			CardBuilder().withTop(3).withRight(3).withBottom(3).withLeft(3).build(),
+			CardBuilder().withTop(4).withRight(4).withBottom(4).withLeft(4).build(),
+			CardBuilder().withTop(5).withRight(5).withBottom(5).withLeft(5).build(),
+			CardBuilder().withTop(6).withRight(6).withBottom(6).withLeft(6).build(),
+			CardBuilder().withTop(7).withRight(7).withBottom(7).withLeft(7).build(),
+			CardBuilder().withTop(8).withRight(8).withBottom(8).withLeft(8).build()
+		];
+		const lastCard = CardBuilder().withTop(9).withRight(9).withBottom(9).withLeft(9).build();
+		const leftPlayer = leftPlayerBuilder.withCardsInHand([lastCard]).build();
+		const rightPlayer = rightPlayerBuilder.build();
+		const board = BoardBuilder()
+			.withExistingCardPlayed(0, { card: cardsOnBoard[0], player: leftPlayer })
+			.withExistingCardPlayed(1, { card: cardsOnBoard[1], player: rightPlayer })
+			.withExistingCardPlayed(2, { card: cardsOnBoard[2], player: leftPlayer })
+			.withExistingCardPlayed(3, { card: cardsOnBoard[3], player: rightPlayer })
+			.withExistingCardPlayed(4, { card: cardsOnBoard[4], player: leftPlayer })
+			.withExistingCardPlayed(5, { card: cardsOnBoard[5], player: rightPlayer })
+			.withExistingCardPlayed(6, { card: cardsOnBoard[6], player: leftPlayer })
+			.withExistingCardPlayed(7, { card: cardsOnBoard[7], player: rightPlayer })
+			.build({ turn: leftPlayer});
+		const engine = GameEngineBuilder().withBoard(board).build();
+
+		let gameEnded = false;
+		engine.onGameEnded(() => {
+			gameEnded = true;
+		});
+
+
+		leftPlayer.placeCard(lastCard, board, 8);
+
+		expect(gameEnded).toBe(true);
 	});
 });
