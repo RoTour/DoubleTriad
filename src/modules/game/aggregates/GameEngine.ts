@@ -27,8 +27,8 @@ export type GameEngine = {
 	changeOwner: (placedCard: PlacedCard[], newOwner: Player) => void;
 	checkForBattle: (data: CardPlacedEvent.Data) => void; // check if card placed triggers a battle
 	handleEndOfGame: () => void; // check if board is full and end game
-	onBattleStarted: (fn: () => void) => void; // subscribe to battle started event
 	onGameEnded: (fn: (data: EndOfGameEvent.Data) => void) => void;
+	cleanUp: () => void;
 };
 
 export type GameEngineBuilder = Builder<GameEngine> & {
@@ -130,8 +130,11 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 				defenders: adjacentEnemies
 			});
 		},
-		onBattleStarted: (fn) => {
-			engine.events.battleStarted.subscribe(fn);
+		cleanUp: () => {
+			engine.events.battleStarted.unsubscribeAll();
+			engine.events.battleWon.unsubscribeAll();
+			engine.events.endOfGame.unsubscribeAll();
+			engine.board.cleanUp()
 		}
 	};
 

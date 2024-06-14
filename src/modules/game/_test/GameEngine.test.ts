@@ -17,26 +17,28 @@ describe('Unit:GameEngine', () => {
 		placedCard = CardBuilder().build();
 	});
 
-	it('should send event battle:started', () => {
-		placedCard.right = 2;
-		const playerCard = CardBuilder().withRight(4).build();
-		leftPlayerBuilder.withCardsInHand([playerCard]);
-		const leftPlayer = leftPlayerBuilder.build();
-		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder()
-			.withExistingCardPlayed(0, { card: placedCard, player: rightPlayer })
-			.build({ turn: leftPlayer });
-		const gameEngine = GameEngineBuilder().withBoard(board).build();
+	// Event has been removed
+	//
+	// it('should send event battle:started', () => {
+	// 	placedCard.right = 2;
+	// 	const playerCard = CardBuilder().withRight(4).build();
+	// 	leftPlayerBuilder.withCardsInHand([playerCard]);
+	// 	const leftPlayer = leftPlayerBuilder.build();
+	// 	const rightPlayer = rightPlayerBuilder.build();
+	// 	const board = BoardBuilder()
+	// 		.withExistingCardPlayed(0, { card: placedCard, player: rightPlayer })
+	// 		.build({ turn: leftPlayer });
+	// 	const gameEngine = GameEngineBuilder().withBoard(board).build();
 
-		let detected = false;
-		gameEngine.onBattleStarted(() => {
-			detected = true;
-		});
+	// 	let detected = false;
+	// 	gameEngine.onBattleStarted(() => {
+	// 		detected = true;
+	// 	});
 
-		leftPlayer.placeCard(playerCard, board, 1);
+	// 	leftPlayer.placeCard(playerCard, board, 1);
 
-		expect(detected).toBe(true);
-	});
+	// 	expect(detected).toBe(true);
+	// });
 
 	/*
 	# R #

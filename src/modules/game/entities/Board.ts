@@ -11,9 +11,9 @@ export type Board = {
 	turn: Player;
 	events: {
 		cardPlaced: CardPlacedEvent.Manager;
-		battleStarted: EventManager<void>;
 	};
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
+	cleanUp: () => void;
 }
 
 export type BoardBuilder = Builder<Board> & {
@@ -33,11 +33,13 @@ export const BoardBuilder = (): BoardBuilder => {
 		turn: _leftPlayer,
 		events: {
 			cardPlaced: CardPlacedEvent.Manager,
-			battleStarted: EventManager<void>(),
 		},
 		onCardPlaced: (fn) => {
 			board.events.cardPlaced.subscribe(fn)
 		},
+		cleanUp: () => {
+			board.events.cardPlaced.unsubscribeAll();
+		}
 	};
 
 	return {
