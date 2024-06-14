@@ -13,6 +13,7 @@ export type GameViewModelInit = {
 
 export type GameViewModel = {
 	gameEngine: GameEngine;
+	reset: () => void;
 };
 
 const createNewGameEngine = (): GameEngine => {
@@ -48,8 +49,12 @@ const createNewGameEngine = (): GameEngine => {
 	return engine;
 };
 
-export const GameViewModel = (init?: GameViewModelInit) => {
+export const GameViewModel = (init?: GameViewModelInit): GameViewModel => {
 	return {
 		gameEngine: init?.engine ?? createNewGameEngine(),
+		reset: function() {
+			this.gameEngine.cleanUp();
+			this.gameEngine = createNewGameEngine();
+		}
 	};
 };
