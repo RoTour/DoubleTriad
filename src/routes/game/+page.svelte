@@ -1,16 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Player } from '../../modules/game/aggregates/Player';
+	import type { PlacedCard } from '../../modules/game/aggregates/PlacedCard';
+	import { type Player } from '../../modules/game/aggregates/Player';
 	import type { Board } from '../../modules/game/entities/Board';
+	import type { EndOfGameEvent } from '../../modules/game/events/EndOfGameEvent';
 	import CardSlot from '../../modules/game/framework/components/CardSlot.svelte';
+	import EndOfGameResults from '../../modules/game/framework/components/EndOfGameResults.svelte';
 	import { EngineStore } from '../../modules/game/framework/stores/EngineStore';
 	import { GameViewModel } from './GameViewModel';
-	import type { PlacedCard } from '../../modules/game/aggregates/PlacedCard';
 
 	let viewModel: GameViewModel;
 	let board: Board | null = null;
 	let turn: Player | null = null;
 	let displayedCards: (PlacedCard | null)[] = [];
+	let results: EndOfGameEvent.Data | null = null
 
 	onMount(() => {
 		viewModel = GameViewModel({ engine: $EngineStore });
@@ -18,6 +21,10 @@
 			setDisplayCards();
       turn = viewModel?.gameEngine?.board?.turn ?? null;
 		});
+		viewModel.gameEngine.onGameEnded((_results) => {
+			console.debug('Game ended', _results);
+			results = _results;
+		})
 		setDisplayCards();
 	});
 
@@ -42,21 +49,32 @@
 	const localClick = (idx: number) => {
 		if (!turn || !board) return;
 		const randomCard = turn.cardsInHand[Math.floor(Math.random() * turn.cardsInHand.length)];
-		console.debug('Playing player:', turn);
 		turn.placeCard(randomCard, board, idx);
 	};
+
+	const resetResults = () => {
+		results = null;
+		viewModel = GameViewModel();
+	};
+
+	$: console.debug(viewModel)
 </script>
 
-<p>{turn ? `${turn.name}'s turn` : `Please wait...`}</p>
-<div class="max-w-[80%] m-auto min-h-screen game-grid p-8 gap-8">
-	{#each displayedCards as placedCard, idx}
-		<CardSlot
-			data={placedCard ?? null}
-			on:click={() => localClick(idx)}
-			players={[board?.leftPlayer, board?.rightPlayer]}
-		/>
-	{/each}
-</div>
+{#if results}
+	<EndOfGameResults {results} on:continue={resetResults}/>
+{/if}
+<main class="max-w-[80%] m-auto min-h-screen flex flex-col">
+	<p>{turn ? `${turn.name}'s turn` : `Please wait...`}</p>
+	<div class="flex-1 game-grid p-8 gap-8">
+		{#each displayedCards as placedCard, idx}
+			<CardSlot
+				data={placedCard ?? null}
+				on:click={() => localClick(idx)}
+				players={[board?.leftPlayer, board?.rightPlayer]}
+			/>
+		{/each}
+	</div>
+</main>
 
 <style lang="postcss">
 	.game-grid {
