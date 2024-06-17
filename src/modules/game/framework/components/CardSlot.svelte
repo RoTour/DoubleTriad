@@ -12,7 +12,7 @@
 <button
 	class:bg-red-300={player && player.name === players[0].name}
 	class:bg-blue-300={player && player.name === players[1].name}
-	class="h-full w-full relative border-2 border-black flex items-center justify-center rounded-lg"
+	class="w-full h-full relative border-2 border-black flex items-center justify-center rounded-lg"
 	on:click
 >
 	{#if data && card && player}

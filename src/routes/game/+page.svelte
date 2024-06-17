@@ -70,13 +70,13 @@
 {#if results}
 	<EndOfGameResults {results} on:continue={resetResults} />
 {/if}
-<main class="max-w-[80%] m-auto min-h-screen flex flex-col">
+<main class="m-auto min-h-screen flex flex-col">
 	<p>
 		{viewModel.gameEngine.board.turn
 			? `${viewModel.gameEngine.board.turn.name}'s turn`
 			: `Please wait...`}
 	</p>
-	<div class="flex-1 game-grid p-8 gap-8">
+	<div class="max-h-full flex-1 game-grid p-8 gap-8 [&>button]:aspect-[63/88] w-fit m-auto">
 		{#each displayedCards as placedCard, idx}
 			<CardSlot
 				data={placedCard ?? null}
@@ -90,7 +90,8 @@
 <style lang="postcss">
 	.game-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(3, 1fr);
+		grid-template-columns: repeat(3, min-content);
+		grid-template-rows: repeat(3, 20vh);
+		justify-items: center;
 	}
 </style>
