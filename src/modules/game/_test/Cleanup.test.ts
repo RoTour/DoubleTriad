@@ -29,10 +29,10 @@ describe('Unit: GameEngine Cleanup', () => {
 		const board = BoardBuilder().build();
 		const engine = GameEngineBuilder().withBoard(board).build();
 		let called = false;
-		engine.events.battleWon.subscribe(() => (called = true));
+		engine.events.battleEnded.subscribe(() => (called = true));
 
 		engine.cleanUp();
-		engine.events.battleWon.emit({
+		engine.events.battleEnded.emit({
 			winner: { card: CardBuilder().build(), player: PlayerBuilder().build() },
 			loser: { card: CardBuilder().build(), player: PlayerBuilder().build() }
 		});

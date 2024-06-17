@@ -74,3 +74,7 @@ export const PlayerBuilder = (): PlayerBuilder => {
 		}
 	};
 };
+
+export const PlayerAreEqual = (a: Player, b: Player): boolean => {
+	return a.id === b.id && a.name === b.name;
+};

@@ -1,8 +1,8 @@
 import type { Builder } from '$lib/entities/Builder';
-import { EventManager } from '$lib/entities/EventManager';
 import type { PlacedCard } from '../aggregates/PlacedCard';
-import { PlayerBuilder, type Player } from '../aggregates/Player';
+import { PlayerAreEqual, PlayerBuilder, type Player } from '../aggregates/Player';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
+import { TurnChangedEvent } from '../events/TurnChangedEvent';
 
 export type Board = {
 	leftPlayer: Player;
@@ -11,8 +11,10 @@ export type Board = {
 	turn: Player;
 	events: {
 		cardPlaced: CardPlacedEvent.Manager;
+		turnChanged: TurnChangedEvent.Manager;
 	};
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
+	onTurnChanged: (fn: (data: TurnChangedEvent.Data) => void) => void;
 	cleanUp: () => void;
 }
 
@@ -33,9 +35,13 @@ export const BoardBuilder = (): BoardBuilder => {
 		turn: _leftPlayer,
 		events: {
 			cardPlaced: CardPlacedEvent.Manager,
+			turnChanged: TurnChangedEvent.Manager
 		},
 		onCardPlaced: (fn) => {
 			board.events.cardPlaced.subscribe(fn)
+		},
+		onTurnChanged: (fn) => {
+			board.events.turnChanged.subscribe(fn)
 		},
 		cleanUp: () => {
 			board.events.cardPlaced.unsubscribeAll();
@@ -66,7 +72,9 @@ export const BoardBuilder = (): BoardBuilder => {
 
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
-				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
+				console.debug('Card placed, switching turns from', board.turn.name, 'to', PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer.name : board.leftPlayer.name);
+				board.turn = PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer : board.leftPlayer;
+				board.events.turnChanged.emit({ player: board.turn });
 			});
 
 			return board;

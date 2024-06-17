@@ -32,18 +32,18 @@ const createNewGameEngine = (): GameEngine => {
 		CardBuilder().withTop(5).withLeft(5).withRight(5).withBottom(5).build(),
 	];
 	const leftPlayer = PlayerBuilder()
-		.withName('Player 1')
+		.withName('Player RED')
 		.withScore(5)
 		.withId('1')
 		.withCardsInHand(leftPlayerDeck)
 		.build();
 	const rightPlayer = PlayerBuilder()
-		.withName('Player 2')
+		.withName('Player BLUE')
 		.withScore(5)
 		.withId('2')
 		.withCardsInHand(rightPlayerDeck)
 		.build();
-	const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build();
+	const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: rightPlayer });
 	const engine = GameEngineBuilder().withBoard(board).build();
 
 	return engine;
@@ -54,7 +54,7 @@ export const GameViewModel = (init?: GameViewModelInit): GameViewModel => {
 		gameEngine: init?.engine ?? createNewGameEngine(),
 		reset: function() {
 			this.gameEngine.cleanUp();
-			this.gameEngine = createNewGameEngine();
+			// return createNewGameEngine();
 		}
 	};
 };
