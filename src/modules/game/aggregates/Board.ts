@@ -74,10 +74,6 @@ export const BoardBuilder = (): BoardBuilder => {
 
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
-				console.debug('Card placed, switching turns from', board.turn.name, 'to', PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer.name : board.leftPlayer.name);
-				if (!board.turn.name) {
-					console.debug('Turn is not set', board)
-				}
 				board.turn = PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer : board.leftPlayer;
 				board.events.turnChanged.emit({ player: board.turn });
 			});

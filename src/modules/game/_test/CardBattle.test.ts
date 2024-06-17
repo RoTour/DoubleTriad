@@ -155,9 +155,7 @@ describe('Unit:GameEngine', () => {
 			.withLeftPlayer(leftPlayer)
 			.withRightPlayer(rightPlayer)
 			.build({ turn: leftPlayer });
-		// console.debug(board.events.cardPlaced.subs)
 		engine = GameEngineBuilder().withBoard(board).build();
-		// console.debug(engine.board.events.cardPlaced.subs)
 
 		/*
 		# L #   	 	# L #

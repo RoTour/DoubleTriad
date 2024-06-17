@@ -47,7 +47,6 @@
 			syncViewModel();
 		});
 		viewModel.gameEngine.onGameEnded((_results) => {
-			console.debug('Game ended', _results);
 			results = _results;
 		});
 	};
@@ -65,7 +64,6 @@
 		viewModel.reset();
 		viewModel = GameViewModel();
 		initGame();
-		console.debug('viewModel', viewModel);
 	};
 </script>
 

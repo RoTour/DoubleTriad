@@ -139,8 +139,6 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 
 	return {
 		withBoard: function (board: Board) {
-			const oldBoard = engine.board;
-			console.debug('Setting board', { oldBoard: oldBoard.events.cardPlaced.subs, newBoard: board.events.cardPlaced.subs });
 			engine.board.cleanUp()
 			engine.board = board;
 			return this;
@@ -152,14 +150,13 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			// Compute battle results when a battle is triggered
 			engine.events.battleStarted.subscribe(({ fighter, defenders }) => {
 				const cardsBeaten = engine.calculateCardsBeaten(fighter, defenders);
-				engine.changeOwner(cardsBeaten, fighter.player);
-				// console.debug('Battle ended, cards beaten:', cardsBeaten);
 				cardsBeaten.forEach((cardBeaten) => {
 					engine.events.battleEnded.emit({
 						winner: fighter,
 						loser: cardBeaten
 					});
 				});
+				engine.changeOwner(cardsBeaten, fighter.player);
 			});
 
 			// Update player scores when a battle is won
