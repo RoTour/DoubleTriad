@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { GameEngineBuilder } from '../aggregates/GameEngine';
+import { BoardBuilder, type Board } from '../aggregates/Board';
+import { GameEngineBuilder, type GameEngine } from '../aggregates/GameEngine';
 import type { PlacedCard } from '../aggregates/PlacedCard';
 import { PlayerBuilder } from '../aggregates/Player';
-import { BoardBuilder } from '../entities/Board';
 import { CardBuilder, type Card } from '../entities/Card';
 import type { AdjacentEnemeies } from '../events/BattleStartedEvent';
 
@@ -10,11 +10,15 @@ describe('Unit:GameEngine', () => {
 	let leftPlayerBuilder: PlayerBuilder;
 	let rightPlayerBuilder: PlayerBuilder;
 	let placedCard: Card;
+	let board: Board;
+	let engine: GameEngine;
 
 	beforeEach(() => {
 		leftPlayerBuilder = PlayerBuilder().withId('1').withName('Left player').withScore(0);
 		rightPlayerBuilder = PlayerBuilder().withId('2').withName('Right player').withScore(0);
 		placedCard = CardBuilder().build();
+		board?.cleanUp();
+		engine?.cleanUp();
 	});
 
 	// Event has been removed
@@ -25,7 +29,7 @@ describe('Unit:GameEngine', () => {
 	// 	leftPlayerBuilder.withCardsInHand([playerCard]);
 	// 	const leftPlayer = leftPlayerBuilder.build();
 	// 	const rightPlayer = rightPlayerBuilder.build();
-	// 	const board = BoardBuilder()
+	// 	board = BoardBuilder()
 	// 		.withExistingCardPlayed(0, { card: placedCard, player: rightPlayer })
 	// 		.build({ turn: leftPlayer });
 	// 	const gameEngine = GameEngineBuilder().withBoard(board).build();
@@ -52,7 +56,7 @@ describe('Unit:GameEngine', () => {
 		const cardBottom = CardBuilder().withTop(1).build();
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder()
+		board = BoardBuilder()
 			.withExistingCardPlayed(1, { card: cardTop, player: rightPlayer })
 			.withExistingCardPlayed(3, { card: cardLeft, player: rightPlayer })
 			.withExistingCardPlayed(5, { card: cardRight, player: rightPlayer })
@@ -60,7 +64,7 @@ describe('Unit:GameEngine', () => {
 			.withLeftPlayer(leftPlayer)
 			.withRightPlayer(rightPlayer)
 			.build({ turn: leftPlayer });
-		const engine = GameEngineBuilder().withBoard(board).build();
+		engine = GameEngineBuilder().withBoard(board).build();
 
 		const enemies = engine.detectAdjacentEnemies(board, leftPlayer, 4);
 
@@ -77,7 +81,7 @@ describe('Unit:GameEngine', () => {
 		const cardBottom = CardBuilder().withTop(1).build();
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder()
+		board = BoardBuilder()
 			.withExistingCardPlayed(1, { card: cardTop, player: rightPlayer })
 			.withExistingCardPlayed(3, { card: cardLeft, player: rightPlayer })
 			.withExistingCardPlayed(5, { card: cardRight, player: leftPlayer })
@@ -85,7 +89,7 @@ describe('Unit:GameEngine', () => {
 			.withLeftPlayer(leftPlayer)
 			.withRightPlayer(rightPlayer)
 			.build({ turn: leftPlayer });
-		const engine = GameEngineBuilder().withBoard(board).build();
+		engine = GameEngineBuilder().withBoard(board).build();
 
 		const enemies = engine.detectAdjacentEnemies(board, leftPlayer, 4);
 
@@ -98,7 +102,7 @@ describe('Unit:GameEngine', () => {
 	it('should detect cards won against', () => {
 		const enemyCardTop = CardBuilder().withBottom(1).build();
 		const playerCardCenter = CardBuilder().withTop(2).build();
-		const engine = GameEngineBuilder().build();
+		engine = GameEngineBuilder().build();
 		const placedCard = { card: playerCardCenter, player: leftPlayerBuilder.build() };
 		const adjacentEnemies: AdjacentEnemeies = {
 			top: { card: enemyCardTop, player: rightPlayerBuilder.build() },
@@ -116,7 +120,7 @@ describe('Unit:GameEngine', () => {
 	it('should not detect cards lose against', () => {
 		const enemyCardTop = CardBuilder().withBottom(2).build();
 		const playerCardCenter = CardBuilder().withTop(1).build();
-		const engine = GameEngineBuilder().build();
+		engine = GameEngineBuilder().build();
 		const placedCard = { card: playerCardCenter, player: leftPlayerBuilder.build() };
 		const adjacentEnemies: AdjacentEnemeies = {
 			top: { card: enemyCardTop, player: rightPlayerBuilder.build() },
@@ -133,7 +137,7 @@ describe('Unit:GameEngine', () => {
 	it('should switch ownership of cards won against', () => {
 		const rightPlayer = rightPlayerBuilder.build();
 		const leftPlayer = leftPlayerBuilder.build();
-		const engine = GameEngineBuilder().build();
+		engine = GameEngineBuilder().build();
 		const cardToBeChanged: PlacedCard = { card: CardBuilder().build(), player: rightPlayer };
 		const beatenEnemies: PlacedCard[] = [cardToBeChanged];
 
@@ -147,11 +151,13 @@ describe('Unit:GameEngine', () => {
 		const rightPlayerDeck = [CardBuilder().withTop(1).build()];
 		const leftPlayer = leftPlayerBuilder.withCardsInHand(leftPlayerDeck).build();
 		const rightPlayer = rightPlayerBuilder.withCardsInHand(rightPlayerDeck).build();
-		const board = BoardBuilder()
+		board = BoardBuilder()
 			.withLeftPlayer(leftPlayer)
 			.withRightPlayer(rightPlayer)
 			.build({ turn: leftPlayer });
-		const engine = GameEngineBuilder().withBoard(board).build();
+		// console.debug(board.events.cardPlaced.subs)
+		engine = GameEngineBuilder().withBoard(board).build();
+		// console.debug(engine.board.events.cardPlaced.subs)
 
 		/*
 		# L #   	 	# L #
@@ -179,7 +185,7 @@ describe('Unit:GameEngine', () => {
 		const lastCard = CardBuilder().withTop(9).withRight(9).withBottom(9).withLeft(9).build();
 		const leftPlayer = leftPlayerBuilder.withCardsInHand([lastCard]).build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder()
+		board = BoardBuilder()
 			.withExistingCardPlayed(0, { card: cardsOnBoard[0], player: leftPlayer })
 			.withExistingCardPlayed(1, { card: cardsOnBoard[1], player: rightPlayer })
 			.withExistingCardPlayed(2, { card: cardsOnBoard[2], player: leftPlayer })
@@ -189,7 +195,7 @@ describe('Unit:GameEngine', () => {
 			.withExistingCardPlayed(6, { card: cardsOnBoard[6], player: leftPlayer })
 			.withExistingCardPlayed(7, { card: cardsOnBoard[7], player: rightPlayer })
 			.build({ turn: leftPlayer});
-		const engine = GameEngineBuilder().withBoard(board).build();
+		engine = GameEngineBuilder().withBoard(board).build();
 
 		let gameEnded = false;
 		engine.onGameEnded(() => {

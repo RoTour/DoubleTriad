@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { BoardBuilder } from '../aggregates/Board';
 import { GameEngineBuilder } from '../aggregates/GameEngine';
 import { PlayerBuilder } from '../aggregates/Player';
-import { BoardBuilder } from '../entities/Board';
 import { CardBuilder } from '../entities/Card';
 
 describe('Unit: GameEngine Cleanup', () => {

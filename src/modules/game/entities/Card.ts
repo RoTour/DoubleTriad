@@ -1,6 +1,7 @@
 import type { Builder } from '$lib/entities/Builder';
 
 export type Card = {
+	name: string;
 	left: number;
 	top: number;
 	right: number;
@@ -12,6 +13,7 @@ export type CardBuilder = Builder<Card> & {
 	withTop: (top: number) => CardBuilder;
 	withRight: (right: number) => CardBuilder;
 	withBottom: (bottom: number) => CardBuilder;
+	withName: (name: string) => CardBuilder;
 };
 
 export const CardBuilder = (): CardBuilder => {
@@ -19,7 +21,8 @@ export const CardBuilder = (): CardBuilder => {
 		left: 0,
 		top: 0,
 		right: 0,
-		bottom: 0
+		bottom: 0,
+		name: 'Basic Card'
 	};
 
 	return {
@@ -37,6 +40,10 @@ export const CardBuilder = (): CardBuilder => {
 		},
 		withBottom: function (bottom: number) {
 			card.bottom = bottom;
+			return this;
+		},
+		withName: function (name: string) {
+			card.name = name;
 			return this;
 		},
 		build: function () {

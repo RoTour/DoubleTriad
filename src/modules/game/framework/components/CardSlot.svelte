@@ -20,7 +20,8 @@
 		<p class="absolute top-1/2 -translate-y-1/2 left-0">{card.left}</p>
 		<p class="absolute top-1/2 -translate-y-1/2 right-0">{card.right}</p>
 		<p class="absolute bottom-0 left-1/2 -translate-x-1/2">{card.bottom}</p>
-	{:else}
+		<p>{card.name}</p>
+	{:else} 
 		<p class="font-bold">Empty</p>
 	{/if}
 </button>

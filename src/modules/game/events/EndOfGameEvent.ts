@@ -17,5 +17,5 @@ export namespace EndOfGameEvent {
 		players: Player[];
 	};
 	export type Manager = EventManager<Data>;
-	export const Manager = EventManager<Data>();
+	export const Manager = () => EventManager<Data>();
 }

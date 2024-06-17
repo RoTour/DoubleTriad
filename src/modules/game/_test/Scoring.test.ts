@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { PlayerBuilder } from '../aggregates/Player';
+import { describe, expect, it } from 'vitest';
+import { BoardBuilder } from '../aggregates/Board';
 import { GameEngineBuilder } from '../aggregates/GameEngine';
-import { BoardBuilder } from '../entities/Board';
+import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder } from '../entities/Card';
 
 describe('Unit:Scoring', () => {

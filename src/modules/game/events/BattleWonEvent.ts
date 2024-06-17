@@ -7,5 +7,5 @@ export namespace BattleWonEvent {
 		loser: PlacedCard;
 	};
 	export type Manager = EventManager<Data>;
-	export const Manager = EventManager<Data>();
+	export const Manager = () => EventManager<Data>();
 }

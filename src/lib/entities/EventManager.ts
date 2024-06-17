@@ -3,12 +3,14 @@ export interface EventManager<T> {
 	unsubscribe(id: string): void;
 	unsubscribeAll(): void;
 	emit(data: T): void;
+	subs: Map<string, (data: T) => void>;
 }
 
 export const EventManager = <T>(): EventManager<T> => {
 	const subscribers: Map<string, (data: T) => void> = new Map();
 
 	return {
+		subs: subscribers,
 		subscribe: (fn) => {
 			const id = Math.random().toString(36).slice(2, 9);
 			subscribers.set(id, fn);

@@ -7,5 +7,5 @@ export namespace TurnChangedEvent {
 	};
 
 	export type Manager = EventManager<Data>;
-	export const Manager = EventManager<Data>();
+	export const Manager = () => EventManager<Data>();
 }

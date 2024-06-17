@@ -9,5 +9,5 @@ export namespace CardPlacedEvent {
 		position: number;
 	}
 	export type Manager = EventManager<Data>;
-	export const Manager = EventManager<Data>();
+	export const Manager = () => EventManager<Data>();
 }

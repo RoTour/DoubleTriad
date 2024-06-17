@@ -14,5 +14,5 @@ export namespace BattleStartedEvent {
 		defenders: AdjacentEnemeies
 	};
 	export type Manager = EventManager<Data>;
-	export const Manager = EventManager<Data>();
+	export const Manager = () => EventManager<Data>();
 }

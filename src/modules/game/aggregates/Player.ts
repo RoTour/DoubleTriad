@@ -1,6 +1,6 @@
 import type { Builder } from '$lib/entities/Builder';
-import type { Board } from '../entities/Board';
 import type { Card } from '../entities/Card';
+import type { Board } from './Board';
 
 export type Player = {
 	id: string;

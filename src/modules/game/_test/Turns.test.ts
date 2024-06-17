@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { BoardBuilder } from '../aggregates/Board';
 import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder } from '../entities/Card';
-import { BoardBuilder } from '../entities/Board';
 
 describe('Unit:Turns', () => {
 	const leftPlayerBuilder = PlayerBuilder().withId('1').withName('Player 1').withScore(0);

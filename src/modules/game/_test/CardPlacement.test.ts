@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { BoardBuilder } from '../aggregates/Board';
 import { PlayerBuilder } from '../aggregates/Player';
-import { BoardBuilder } from '../entities/Board';
 import { CardBuilder, type Card } from '../entities/Card';
 
 describe('GameEngine', () => {

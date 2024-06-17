@@ -1,9 +1,9 @@
 import type { Builder } from '$lib/entities/Builder';
-import { BoardBuilder, type Board } from '../entities/Board';
 import { BattleStartedEvent, type AdjacentEnemeies } from '../events/BattleStartedEvent';
 import { BattleWonEvent } from '../events/BattleWonEvent';
 import type { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { EndOfGameEvent } from '../events/EndOfGameEvent';
+import { BoardBuilder, type Board } from './Board';
 import type { PlacedCard } from './PlacedCard';
 import type { Player } from './Player';
 
@@ -40,9 +40,9 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 	const engine: GameEngine = {
 		board: BoardBuilder().build(),
 		events: {
-			battleStarted: BattleStartedEvent.Manager,
-			battleEnded: BattleWonEvent.Manager,
-			endOfGame: EndOfGameEvent.Manager
+			battleStarted: BattleStartedEvent.Manager(),
+			battleEnded: BattleWonEvent.Manager(),
+			endOfGame: EndOfGameEvent.Manager(),
 		},
 		detectAdjacentEnemies: (board: Board, player: Player, position: number): AdjacentEnemeies => {
 			const isAgainstLeftWall = position % 3 === 0;
@@ -139,6 +139,9 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 
 	return {
 		withBoard: function (board: Board) {
+			const oldBoard = engine.board;
+			console.debug('Setting board', { oldBoard: oldBoard.events.cardPlaced.subs, newBoard: board.events.cardPlaced.subs });
+			engine.board.cleanUp()
 			engine.board = board;
 			return this;
 		},
@@ -150,7 +153,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			engine.events.battleStarted.subscribe(({ fighter, defenders }) => {
 				const cardsBeaten = engine.calculateCardsBeaten(fighter, defenders);
 				engine.changeOwner(cardsBeaten, fighter.player);
-				console.debug('Battle ended, cards beaten:', cardsBeaten);
+				// console.debug('Battle ended, cards beaten:', cardsBeaten);
 				cardsBeaten.forEach((cardBeaten) => {
 					engine.events.battleEnded.emit({
 						winner: fighter,

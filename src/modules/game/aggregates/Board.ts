@@ -1,8 +1,9 @@
 import type { Builder } from '$lib/entities/Builder';
-import type { PlacedCard } from '../aggregates/PlacedCard';
-import { PlayerAreEqual, PlayerBuilder, type Player } from '../aggregates/Player';
+import { EventManager } from '$lib/entities/EventManager';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
+import type { PlacedCard } from './PlacedCard';
+import { PlayerAreEqual, PlayerBuilder, type Player } from './Player';
 
 export type Board = {
 	leftPlayer: Player;
@@ -10,8 +11,8 @@ export type Board = {
 	placedCards: PlacedCard[];
 	turn: Player;
 	events: {
-		cardPlaced: CardPlacedEvent.Manager;
-		turnChanged: TurnChangedEvent.Manager;
+		cardPlaced: EventManager<CardPlacedEvent.Data>;
+		turnChanged: EventManager<TurnChangedEvent.Data>;
 	};
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
 	onTurnChanged: (fn: (data: TurnChangedEvent.Data) => void) => void;
@@ -34,17 +35,18 @@ export const BoardBuilder = (): BoardBuilder => {
 		placedCards: [],
 		turn: _leftPlayer,
 		events: {
-			cardPlaced: CardPlacedEvent.Manager,
-			turnChanged: TurnChangedEvent.Manager
+			cardPlaced: CardPlacedEvent.Manager(),
+			turnChanged: TurnChangedEvent.Manager()
 		},
-		onCardPlaced: (fn) => {
-			board.events.cardPlaced.subscribe(fn)
+		onCardPlaced: function (fn) {
+			this.events.cardPlaced.subscribe(fn)
 		},
-		onTurnChanged: (fn) => {
-			board.events.turnChanged.subscribe(fn)
+		onTurnChanged: function (fn) {
+			this.events.turnChanged.subscribe(fn)
 		},
-		cleanUp: () => {
-			board.events.cardPlaced.unsubscribeAll();
+		cleanUp: function () {
+			this.events.cardPlaced.unsubscribeAll();
+			this.events.turnChanged.unsubscribeAll();
 		}
 	};
 
@@ -73,6 +75,9 @@ export const BoardBuilder = (): BoardBuilder => {
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
 				console.debug('Card placed, switching turns from', board.turn.name, 'to', PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer.name : board.leftPlayer.name);
+				if (!board.turn.name) {
+					console.debug('Turn is not set', board)
+				}
 				board.turn = PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer : board.leftPlayer;
 				board.events.turnChanged.emit({ player: board.turn });
 			});
