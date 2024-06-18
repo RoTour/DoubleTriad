@@ -6,7 +6,6 @@
 	const dispatch = createEventDispatcher();
 
 	const newGame = () => {
-		console.log('Continue');
 		dispatch('continue');
 	};
 </script>

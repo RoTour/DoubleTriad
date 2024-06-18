@@ -1,3 +1,3 @@
 {
-	"conventionalCommits.scopes": ["game engine", "card placement", "ui", "ux"]
+	"conventionalCommits.scopes": ["game engine", "card placement", "ui", "ux", "notifications"]
 }

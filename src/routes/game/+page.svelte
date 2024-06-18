@@ -7,6 +7,7 @@
 	import EndOfGameResults from '../../modules/game/framework/components/EndOfGameResults.svelte';
 	import { GameViewModel } from './GameViewModel';
 	import { pickedCard } from '../../modules/game/framework/stores/PickedCardStore.svelte';
+	import { NotificationBuilder } from '$lib/entities/Notification';
 
 	let viewModel: GameViewModel = $state.frozen(GameViewModel());
 	let displayedCards: (PlacedCard | null)[] = $derived.by(() => {
@@ -22,8 +23,6 @@
 		return result;
 	});
 	let results: EndOfGameEvent.Data | null = $state(null);
-
-	$inspect('viewModel', viewModel);
 
 	onMount(() => {
 		initGame();
@@ -58,12 +57,21 @@
 		const turn = board.turn;
 		const cardToBePlaced = pickedCard.card;
 		if (!turn || !board || !cardToBePlaced) return;
-		const playerOwnsCard = turn.cardsInHand.some((card) => card.compare(cardToBePlaced));
-		if (!playerOwnsCard) {
-			alert('You do not own this card');
-			return;
+		try {
+			turn.placeCard(cardToBePlaced, board, idx);
+		} catch (e) {
+			pickedCard.set(null);
+			if (e instanceof Error) {
+				NotificationBuilder()
+					.withType('error')
+					.withTitle('Error : ')
+					.withDescription(e.message)
+					.withExpiration(3000)
+					.send();
+				return;
+			}
+			alert('An error occurred, please try again later');
 		}
-		turn.placeCard(cardToBePlaced, board, idx);
 	};
 
 	const resetResults = () => {
