@@ -10,7 +10,7 @@ export type Card = {
 	bottom: number;
 	// ----
 	compare: (other: Card) => boolean;
-}
+};
 
 export type CardBuilder = Builder<Card> & {
 	withLeft: (left: number) => CardBuilder;
@@ -56,8 +56,8 @@ export const CardBuilder = (): CardBuilder => {
 		build: function () {
 			return card;
 		}
-	}
-}
+	};
+};
 
 function compare(this: Card, other: Card): boolean {
 	return this.id === other.id;

@@ -11,7 +11,7 @@ export type AdjacentEnemeies = {
 export namespace BattleStartedEvent {
 	export type Data = {
 		fighter: PlacedCard;
-		defenders: AdjacentEnemeies
+		defenders: AdjacentEnemeies;
 	};
 	export type Manager = EventManager<Data>;
 	export const Manager = () => EventManager<Data>();

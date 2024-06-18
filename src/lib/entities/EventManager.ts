@@ -24,6 +24,6 @@ export const EventManager = <T>(): EventManager<T> => {
 		},
 		emit: (data) => {
 			subscribers.forEach((fn) => fn(data));
-		},
+		}
 	};
 };

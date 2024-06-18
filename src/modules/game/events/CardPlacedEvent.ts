@@ -7,7 +7,7 @@ export namespace CardPlacedEvent {
 		card: Card;
 		player: Player;
 		position: number;
-	}
+	};
 	export type Manager = EventManager<Data>;
 	export const Manager = () => EventManager<Data>();
 }

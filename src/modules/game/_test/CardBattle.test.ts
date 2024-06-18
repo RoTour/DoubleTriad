@@ -3,20 +3,20 @@ import { BoardBuilder, type Board } from '../aggregates/Board';
 import { GameEngineBuilder, type GameEngine } from '../aggregates/GameEngine';
 import type { PlacedCard } from '../aggregates/PlacedCard';
 import { PlayerBuilder } from '../aggregates/Player';
-import { CardBuilder, type Card } from '../entities/Card';
+import { CardBuilder } from '../entities/Card';
 import type { AdjacentEnemeies } from '../events/BattleStartedEvent';
 
 describe('Unit:GameEngine', () => {
 	let leftPlayerBuilder: PlayerBuilder;
 	let rightPlayerBuilder: PlayerBuilder;
-	let placedCard: Card;
+	// let placedCard: Card;
 	let board: Board;
 	let engine: GameEngine;
 
 	beforeEach(() => {
 		leftPlayerBuilder = PlayerBuilder().withId('1').withName('Left player').withScore(0);
 		rightPlayerBuilder = PlayerBuilder().withId('2').withName('Right player').withScore(0);
-		placedCard = CardBuilder().build();
+		// placedCard = CardBuilder().build();
 		board?.cleanUp();
 		engine?.cleanUp();
 	});
@@ -192,14 +192,13 @@ describe('Unit:GameEngine', () => {
 			.withExistingCardPlayed(5, { card: cardsOnBoard[5], player: rightPlayer })
 			.withExistingCardPlayed(6, { card: cardsOnBoard[6], player: leftPlayer })
 			.withExistingCardPlayed(7, { card: cardsOnBoard[7], player: rightPlayer })
-			.build({ turn: leftPlayer});
+			.build({ turn: leftPlayer });
 		engine = GameEngineBuilder().withBoard(board).build();
 
 		let gameEnded = false;
 		engine.onGameEnded(() => {
 			gameEnded = true;
 		});
-
 
 		leftPlayer.placeCard(lastCard, board, 8);
 

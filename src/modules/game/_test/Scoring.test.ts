@@ -1,12 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { BoardBuilder } from '../aggregates/Board';
-import { GameEngineBuilder } from '../aggregates/GameEngine';
+import { GameEngineBuilder, type GameEngine } from '../aggregates/GameEngine';
 import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder } from '../entities/Card';
 
 describe('Unit:Scoring', () => {
 	const leftPlayerBuilder = PlayerBuilder().withId('1').withName('Left Player').withScore(5);
 	const rightPlayerBuilder = PlayerBuilder().withId('2').withName('RightPlayer').withScore(5);
+	let engine: GameEngine;
+
+	afterEach(() => {
+		engine?.cleanUp();
+	});
 
 	it('should add one to player score when player wins against adjacent enemy', () => {
 		const winningCard = CardBuilder().withLeft(2).build();
@@ -17,7 +22,7 @@ describe('Unit:Scoring', () => {
 			.withRightPlayer(rightPlayer)
 			.withExistingCardPlayed(3, { card: CardBuilder().withRight(1).build(), player: leftPlayer })
 			.build({ turn: rightPlayer });
-		const engine = GameEngineBuilder().withBoard(board).build();
+		engine = GameEngineBuilder().withBoard(board).build();
 
 		rightPlayer.placeCard(winningCard, board, 4);
 

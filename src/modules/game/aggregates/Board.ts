@@ -5,6 +5,8 @@ import { TurnChangedEvent } from '../events/TurnChangedEvent';
 import type { PlacedCard } from './PlacedCard';
 import { PlayerAreEqual, PlayerBuilder, type Player } from './Player';
 
+type BoardInit = { turn: Player };
+
 export type Board = {
 	leftPlayer: Player;
 	rightPlayer: Player;
@@ -17,9 +19,9 @@ export type Board = {
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
 	onTurnChanged: (fn: (data: TurnChangedEvent.Data) => void) => void;
 	cleanUp: () => void;
-}
+};
 
-export type BoardBuilder = Builder<Board> & {
+export type BoardBuilder = Builder<Board, BoardInit> & {
 	withLeftPlayer: (player: Player) => BoardBuilder;
 	withRightPlayer: (player: Player) => BoardBuilder;
 	withPlayedCards: (cards: PlacedCard[]) => BoardBuilder;
@@ -39,10 +41,10 @@ export const BoardBuilder = (): BoardBuilder => {
 			turnChanged: TurnChangedEvent.Manager()
 		},
 		onCardPlaced: function (fn) {
-			this.events.cardPlaced.subscribe(fn)
+			this.events.cardPlaced.subscribe(fn);
 		},
 		onTurnChanged: function (fn) {
-			this.events.turnChanged.subscribe(fn)
+			this.events.turnChanged.subscribe(fn);
 		},
 		cleanUp: function () {
 			this.events.cardPlaced.unsubscribeAll();
@@ -69,16 +71,19 @@ export const BoardBuilder = (): BoardBuilder => {
 		},
 		build: function (init?: { turn: Player }) {
 			// Randomly choose who goes first if not specified
-			const firstPlayerToPlay = init?.turn || (Math.random() < 0.5 ? board.leftPlayer : board.rightPlayer);
+			const firstPlayerToPlay =
+				init?.turn || (Math.random() < 0.5 ? board.leftPlayer : board.rightPlayer);
 			board.turn = firstPlayerToPlay;
 
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
-				board.turn = PlayerAreEqual(board.turn, board.leftPlayer) ? board.rightPlayer : board.leftPlayer;
+				board.turn = PlayerAreEqual(board.turn, board.leftPlayer)
+					? board.rightPlayer
+					: board.leftPlayer;
 				board.events.turnChanged.emit({ player: board.turn });
 			});
 
 			return board;
 		}
-	}
-}
+	};
+};

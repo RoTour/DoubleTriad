@@ -18,7 +18,13 @@ export type GameViewModel = {
 
 const createNewGameEngine = (): GameEngine => {
 	const leftPlayerDeck: Card[] = [
-		CardBuilder().withTop(1).withLeft(1).withRight(1).withBottom(1).withName('L. Hernandez').build(),
+		CardBuilder()
+			.withTop(1)
+			.withLeft(1)
+			.withRight(1)
+			.withBottom(1)
+			.withName('L. Hernandez')
+			.build(),
 		CardBuilder().withTop(2).withLeft(2).withRight(2).withBottom(2).withName('R. Varane').build(),
 		CardBuilder().withTop(3).withLeft(3).withRight(3).withBottom(3).withName('H. Lloris').build(),
 		CardBuilder().withTop(4).withLeft(4).withRight(4).withBottom(4).withName('N. Kante').build(),
@@ -29,7 +35,7 @@ const createNewGameEngine = (): GameEngine => {
 		CardBuilder().withTop(2).withLeft(2).withRight(2).withBottom(2).withName('N. Fekir').build(),
 		CardBuilder().withTop(3).withLeft(3).withRight(3).withBottom(3).withName('R. Varane').build(),
 		CardBuilder().withTop(4).withLeft(4).withRight(4).withBottom(4).withName('P. Pogba').build(),
-		CardBuilder().withTop(5).withLeft(5).withRight(5).withBottom(5).withName('A. Griezmann').build(),
+		CardBuilder().withTop(5).withLeft(5).withRight(5).withBottom(5).withName('A. Griezmann').build()
 	];
 	const leftPlayer = PlayerBuilder()
 		.withName('Player RED')
@@ -43,7 +49,10 @@ const createNewGameEngine = (): GameEngine => {
 		.withId('2')
 		.withCardsInHand(rightPlayerDeck)
 		.build();
-	const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: rightPlayer });
+	const board = BoardBuilder()
+		.withLeftPlayer(leftPlayer)
+		.withRightPlayer(rightPlayer)
+		.build({ turn: rightPlayer });
 	const engine = GameEngineBuilder().withBoard(board).build();
 
 	return engine;
@@ -52,7 +61,7 @@ const createNewGameEngine = (): GameEngine => {
 export const GameViewModel = (init?: GameViewModelInit): GameViewModel => {
 	return {
 		gameEngine: init?.engine ?? createNewGameEngine(),
-		reset: function() {
+		reset: function () {
 			this.gameEngine.cleanUp();
 			// return createNewGameEngine();
 		}

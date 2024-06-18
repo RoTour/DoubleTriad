@@ -4,4 +4,4 @@ import type { Player } from './Player';
 export type PlacedCard = {
 	card: Card;
 	player: Player;
-}
+};

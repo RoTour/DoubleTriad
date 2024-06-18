@@ -42,7 +42,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 		events: {
 			battleStarted: BattleStartedEvent.Manager(),
 			battleEnded: BattleWonEvent.Manager(),
-			endOfGame: EndOfGameEvent.Manager(),
+			endOfGame: EndOfGameEvent.Manager()
 		},
 		detectAdjacentEnemies: (board: Board, player: Player, position: number): AdjacentEnemeies => {
 			const isAgainstLeftWall = position % 3 === 0;
@@ -82,7 +82,15 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			const cards = engine.board.placedCards;
 			const isBoardFull =
 				cards.length === 9 &&
-				cards[0] && cards[1] && cards[2] && cards[3] && cards[4] && cards[5] && cards[6] && cards[7] && cards[8];
+				cards[0] &&
+				cards[1] &&
+				cards[2] &&
+				cards[3] &&
+				cards[4] &&
+				cards[5] &&
+				cards[6] &&
+				cards[7] &&
+				cards[8];
 			if (!isBoardFull) return;
 			const isDraw = engine.board.leftPlayer.score === engine.board.rightPlayer.score;
 			if (isDraw) {
@@ -139,7 +147,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 
 	return {
 		withBoard: function (board: Board) {
-			engine.board.cleanUp()
+			engine.board.cleanUp();
 			engine.board = board;
 			return this;
 		},

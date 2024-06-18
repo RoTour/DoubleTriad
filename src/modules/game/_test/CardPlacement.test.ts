@@ -13,7 +13,10 @@ describe('GameEngine', () => {
 		const leftPlayer = leftPlayerBuilder.build();
 
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		leftPlayer.placeCard(placedCard, board, 0);
 
@@ -26,7 +29,10 @@ describe('GameEngine', () => {
 		const leftPlayer = leftPlayerBuilder.build();
 
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		leftPlayer.placeCard(placedCard, board, 2);
 
@@ -38,7 +44,10 @@ describe('GameEngine', () => {
 	it('error should be thrown if player tries placing a card he doesnt have in his hand', () => {
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		const placeCard = () => leftPlayer.placeCard(placedCard, board, 0);
 
@@ -50,7 +59,10 @@ describe('GameEngine', () => {
 		const leftPlayer = leftPlayerBuilder.build();
 
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		const placeCard = () => leftPlayer.placeCard(placedCard, board, 10);
 		const placeCardNegative = () => leftPlayer.placeCard(placedCard, board, -5);
@@ -65,7 +77,10 @@ describe('GameEngine', () => {
 		rightPlayerBuilder.withCardsInHand([placedCard2]);
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		leftPlayer.placeCard(placedCard, board, 0);
 		const secondPlayerTurn = () => rightPlayer.placeCard(placedCard2, board, 0);
@@ -77,7 +92,10 @@ describe('GameEngine', () => {
 		leftPlayerBuilder.withCardsInHand([placedCard]);
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 		let detected = false;
 		board.onCardPlaced(() => {
 			detected = true;
@@ -92,7 +110,10 @@ describe('GameEngine', () => {
 		leftPlayerBuilder.withCardsInHand([placedCard]);
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 		let detectedCard = null;
 		board.onCardPlaced(({ card }) => {
 			detectedCard = card;
@@ -107,9 +128,12 @@ describe('GameEngine', () => {
 		leftPlayerBuilder.withCardsInHand([placedCard]);
 		const leftPlayer = leftPlayerBuilder.build();
 		const rightPlayer = rightPlayerBuilder.build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 		let detectedPosition = null;
-		board.onCardPlaced(({position}) => {
+		board.onCardPlaced(({ position }) => {
 			detectedPosition = position;
 		});
 
@@ -121,14 +145,15 @@ describe('GameEngine', () => {
 	it('should remove card from player hand after placing it on the board', () => {
 		const leftPlayerDeck: Card[] = [
 			CardBuilder().withTop(1).build(),
-			CardBuilder().withBottom(2).build(),
+			CardBuilder().withBottom(2).build()
 		];
-		const rightPlayerDeck: Card[] = [
-			CardBuilder().withLeft(1).build(),
-		];
+		const rightPlayerDeck: Card[] = [CardBuilder().withLeft(1).build()];
 		const leftPlayer = leftPlayerBuilder.withCardsInHand(leftPlayerDeck).build();
 		const rightPlayer = rightPlayerBuilder.withCardsInHand(rightPlayerDeck).build();
-		const board = BoardBuilder().withLeftPlayer(leftPlayer).withRightPlayer(rightPlayer).build({ turn: leftPlayer });
+		const board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
+			.withRightPlayer(rightPlayer)
+			.build({ turn: leftPlayer });
 
 		leftPlayer.placeCard(leftPlayerDeck[0], board, 0);
 		rightPlayer.placeCard(rightPlayerDeck[0], board, 1);

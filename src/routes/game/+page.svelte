@@ -10,17 +10,16 @@
 
 	let viewModel: GameViewModel = $state.frozen(GameViewModel());
 	let displayedCards: (PlacedCard | null)[] = $derived.by(() => {
-		return [
-			{ ...viewModel.gameEngine.board.placedCards[0] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[1] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[2] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[3] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[4] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[5] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[6] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[7] } ?? null,
-			{ ...viewModel.gameEngine.board.placedCards[8] } ?? null
-		];
+		const result: (PlacedCard | null)[] = [];
+		for (let i = 0; i < 9; i++) {
+			const card = viewModel.gameEngine.board.placedCards.at(i);
+			if (card) {
+				result.push({ ...card });
+			} else {
+				result.push(null);
+			}
+		}
+		return result;
 	});
 	let results: EndOfGameEvent.Data | null = $state(null);
 
@@ -63,7 +62,7 @@
 		if (!playerOwnsCard) {
 			alert('You do not own this card');
 			return;
-		};
+		}
 		turn.placeCard(cardToBePlaced, board, idx);
 	};
 
