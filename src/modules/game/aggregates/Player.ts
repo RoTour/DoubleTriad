@@ -16,8 +16,8 @@ const placeCard = function (this: Player, card: Card, board: Board, positionInde
 		throw new Error('It is not your turn');
 	}
 
-	const cardExists = this.cardsInHand.some((c) => c === card);
-	if (!cardExists) {
+	const cardOwned = this.cardsInHand.some((c) => c.compare(card));
+	if (!cardOwned) {
 		throw new Error('Player does not own the card');
 	}
 
@@ -31,7 +31,7 @@ const placeCard = function (this: Player, card: Card, board: Board, positionInde
 		throw new Error('Position is already occupied');
 	}
 
-	this.cardsInHand = this.cardsInHand.filter((c) => c !== card);
+	this.cardsInHand = this.cardsInHand.filter((c) => !c.compare(card));
 	board.placedCards[positionIndex] = { card: card, player: this };
 	board.events.cardPlaced.emit({ card, player: this, position: positionIndex });
 };

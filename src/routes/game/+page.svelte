@@ -3,8 +3,10 @@
 	import type { PlacedCard } from '../../modules/game/aggregates/PlacedCard';
 	import type { EndOfGameEvent } from '../../modules/game/events/EndOfGameEvent';
 	import CardSlot from '../../modules/game/framework/components/CardSlot.svelte';
+	import Deck from '../../modules/game/framework/components/Deck.svelte';
 	import EndOfGameResults from '../../modules/game/framework/components/EndOfGameResults.svelte';
 	import { GameViewModel } from './GameViewModel';
+	import { pickedCard } from '../../modules/game/framework/stores/PickedCardStore.svelte';
 
 	let viewModel: GameViewModel = $state.frozen(GameViewModel());
 	let displayedCards: (PlacedCard | null)[] = $derived.by(() => {
@@ -39,6 +41,7 @@
 	const initGame = () => {
 		viewModel.gameEngine.board.onCardPlaced(() => {
 			syncViewModel();
+			pickedCard.set(null);
 		});
 		viewModel.gameEngine.board.onTurnChanged(() => {
 			syncViewModel();
@@ -54,9 +57,14 @@
 	const localClick = (idx: number) => {
 		const board = viewModel.gameEngine.board;
 		const turn = board.turn;
-		if (!turn || !board) return;
-		const randomCard = turn.cardsInHand[Math.floor(Math.random() * turn.cardsInHand.length)];
-		turn.placeCard(randomCard, board, idx);
+		const cardToBePlaced = pickedCard.card;
+		if (!turn || !board || !cardToBePlaced) return;
+		const playerOwnsCard = turn.cardsInHand.some((card) => card.compare(cardToBePlaced));
+		if (!playerOwnsCard) {
+			alert('You do not own this card');
+			return;
+		};
+		turn.placeCard(cardToBePlaced, board, idx);
 	};
 
 	const resetResults = () => {
@@ -70,20 +78,34 @@
 {#if results}
 	<EndOfGameResults {results} on:continue={resetResults} />
 {/if}
-<main class="m-auto min-h-screen flex flex-col">
+<main class="m-auto h-screen max-h-screen flex flex-col">
 	<p>
 		{viewModel.gameEngine.board.turn
 			? `${viewModel.gameEngine.board.turn.name}'s turn`
 			: `Please wait...`}
 	</p>
-	<div class="max-h-full flex-1 game-grid p-8 gap-8 [&>button]:aspect-[63/88] w-fit m-auto">
-		{#each displayedCards as placedCard, idx}
-			<CardSlot
-				data={placedCard ?? null}
-				on:click={() => localClick(idx)}
-				players={[viewModel.gameEngine.board.leftPlayer, viewModel.gameEngine.board.rightPlayer]}
+	<div class="flex justify-center flex-1 min-h-0">
+		<aside class="hidden lg:block py-8 flex-1 text-end">
+			<Deck
+				owner={viewModel.gameEngine.board.leftPlayer}
+				cards={viewModel.gameEngine.board.leftPlayer.cardsInHand}
 			/>
-		{/each}
+		</aside>
+		<div class="max-h-full game-grid p-4 lg:p-8 gap-4 lg:gap-8 [&>button]:aspect-[63/88] w-fit">
+			{#each displayedCards as placedCard, idx}
+				<CardSlot
+					data={placedCard ?? null}
+					on:click={() => localClick(idx)}
+					players={[viewModel.gameEngine.board.leftPlayer, viewModel.gameEngine.board.rightPlayer]}
+				/>
+			{/each}
+		</div>
+		<aside class="hidden lg:block py-8 flex-1">
+			<Deck
+				owner={viewModel.gameEngine.board.rightPlayer}
+				cards={viewModel.gameEngine.board.rightPlayer.cardsInHand}
+			/>
+		</aside>
 	</div>
 </main>
 

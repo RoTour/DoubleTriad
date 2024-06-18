@@ -1,11 +1,15 @@
 import type { Builder } from '$lib/entities/Builder';
+import { IdGenerator } from '$lib/utils/IdGenerator';
 
 export type Card = {
 	name: string;
+	id: string;
 	left: number;
 	top: number;
 	right: number;
 	bottom: number;
+	// ----
+	compare: (other: Card) => boolean;
 }
 
 export type CardBuilder = Builder<Card> & {
@@ -18,11 +22,14 @@ export type CardBuilder = Builder<Card> & {
 
 export const CardBuilder = (): CardBuilder => {
 	const card: Card = {
+		name: 'Basic Card',
+		id: IdGenerator.shortString(),
 		left: 0,
 		top: 0,
 		right: 0,
 		bottom: 0,
-		name: 'Basic Card'
+		// ----
+		compare: compare
 	};
 
 	return {
@@ -50,4 +57,8 @@ export const CardBuilder = (): CardBuilder => {
 			return card;
 		}
 	}
+}
+
+function compare(this: Card, other: Card): boolean {
+	return this.id === other.id;
 }
