@@ -7,7 +7,9 @@ export type Player = {
 	name: string;
 	score: number;
 	cardsInHand: Card[];
+	// ----
 	placeCard: (card: Card, board: Board, positionIndex: number) => void;
+	compare: (player: Player) => boolean;
 };
 
 const placeCard = function (this: Player, card: Card, board: Board, positionIndex: number) {
@@ -49,7 +51,9 @@ export const PlayerBuilder = (): PlayerBuilder => {
 		name: '',
 		score: 0,
 		cardsInHand: [],
-		placeCard
+		// ----
+		placeCard,
+		compare
 	};
 
 	return {
@@ -75,6 +79,6 @@ export const PlayerBuilder = (): PlayerBuilder => {
 	};
 };
 
-export const PlayerAreEqual = (a: Player, b: Player): boolean => {
-	return a.id === b.id && a.name === b.name;
+const compare = function (this: Player, player: Player) {
+	return this.id === player.id && this.name === player.name;
 };

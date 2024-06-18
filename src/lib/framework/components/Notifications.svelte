@@ -1,14 +1,12 @@
 <script lang="ts">
+	import { NotificationBuilder, type Notification } from '$lib/entities/Notification';
 	import { notificationCenter } from '$lib/framework/stores/NotificationCenterStore.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { NotificationBuilder, type Notification } from '$lib/entities/Notification';
-	import { fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { fly } from 'svelte/transition';
 
 	let notifications: Notification[] = $state([]);
 	let timeouts: number[] = [];
-
-	$inspect('notifications', notifications);
 
 	onMount(() => {
 		notificationCenter.instance.onNewNotification(({ notification }) => {
@@ -32,7 +30,7 @@
 		NotificationBuilder()
 			.withTitle(index + ' - Starter notification :')
 			.withDescription('For testing purposes')
-			.withExpiration(5000)
+			.withExpiration(3000)
 			.send();
 		index++;
 	};
@@ -43,14 +41,14 @@
 		class="font-bold text-2xl"
 		class:text-red-600={data.type === 'error'}
 		class:text-green-600={data.type === 'success'}
-		class:text-blue-600={data.type === 'info'}
+		class:text-cyan-400={data.type === 'info'}
 	>
 		{data.title}
 	</h3>
 	<p class="text-2xl">{data.description}</p>
 {/snippet}
 
-<ul class="fixed top-1/4 left-1/2 -translate-x-1/2 w-screen">
+<ul class="fixed top-1/4 left-1/2 -translate-x-1/2 w-screen z-20">
 	{#each notifications.slice(-5) as notification (notification.id)}
 		<li
 			in:fly={{ duration: 500, y: 50 }}
@@ -65,3 +63,13 @@
 <button onclick={sendNotification} class="fixed right-0 border-black border-2">
 	Send notification
 </button>
+
+<style lang="postcss">
+	li {
+		background-image: radial-gradient(
+			circle at center,
+			rgba(0, 0, 0, 0.8) 0%,
+			rgba(0, 0, 0, 0) 95%
+		);
+	}
+</style>

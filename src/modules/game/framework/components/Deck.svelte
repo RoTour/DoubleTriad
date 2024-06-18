@@ -1,24 +1,29 @@
 <script lang="ts">
 	import type { Player } from '../../aggregates/Player';
 	import type { Card } from '../../entities/Card';
-	import { pickedCard } from '../stores/PickedCardStore.svelte';
+	import { currentPlayerStore } from '../stores/CurrentPlayerStore.svelte';
 	import DeckCard from './DeckCard.svelte';
 
-	// svelte5
 	type Props = {
 		cards: Card[];
 		owner: Player;
 	};
 	let { cards, owner }: Props = $props();
 
-	$inspect('selectedCard', pickedCard.card);
+	let disabled: boolean = $derived(
+		currentPlayerStore.value ? !owner.compare(currentPlayerStore.value) : true
+	);
 </script>
 
 <p>{owner.name}</p>
-<ul class="relative w-full h-full">
+<ul
+	class="relative w-full h-full"
+	class:pointer-events-none={disabled}
+	class:select-none={disabled}
+>
 	{#each cards as card, index}
 		<li class="">
-			<DeckCard {card} {index} />
+			<DeckCard {card} {index} {disabled} />
 		</li>
 	{/each}
 </ul>

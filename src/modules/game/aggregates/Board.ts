@@ -3,7 +3,7 @@ import { EventManager } from '$lib/entities/EventManager';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
 import type { PlacedCard } from './PlacedCard';
-import { PlayerAreEqual, PlayerBuilder, type Player } from './Player';
+import { PlayerBuilder, type Player } from './Player';
 
 type BoardInit = { turn: Player };
 
@@ -77,9 +77,7 @@ export const BoardBuilder = (): BoardBuilder => {
 
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
-				board.turn = PlayerAreEqual(board.turn, board.leftPlayer)
-					? board.rightPlayer
-					: board.leftPlayer;
+				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
 				board.events.turnChanged.emit({ player: board.turn });
 			});
 

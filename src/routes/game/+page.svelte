@@ -8,6 +8,7 @@
 	import { GameViewModel } from './GameViewModel';
 	import { pickedCard } from '../../modules/game/framework/stores/PickedCardStore.svelte';
 	import { NotificationBuilder } from '$lib/entities/Notification';
+	import { currentPlayerStore } from '../../modules/game/framework/stores/CurrentPlayerStore.svelte';
 
 	let viewModel: GameViewModel = $state.frozen(GameViewModel());
 	let displayedCards: (PlacedCard | null)[] = $derived.by(() => {
@@ -41,8 +42,9 @@
 			syncViewModel();
 			pickedCard.set(null);
 		});
-		viewModel.gameEngine.board.onTurnChanged(() => {
+		viewModel.gameEngine.board.onTurnChanged(({ player }) => {
 			syncViewModel();
+			currentPlayerStore.value = player;
 		});
 		viewModel.gameEngine.onBattleEnded(() => {
 			syncViewModel();
@@ -50,7 +52,10 @@
 		viewModel.gameEngine.onGameEnded((_results) => {
 			results = _results;
 		});
+		currentPlayerStore.value = viewModel.gameEngine.board.turn;
 	};
+
+	$inspect('turn', currentPlayerStore.value?.name);
 
 	const localClick = (idx: number) => {
 		const board = viewModel.gameEngine.board;
