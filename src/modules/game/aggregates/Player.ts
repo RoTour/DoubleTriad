@@ -1,6 +1,6 @@
-import type { Builder } from '$lib/entities/Builder';
+import type { Builder } from '$lib/utils/Builder';
 import type { Card } from '../entities/Card';
-import type { Board } from './Board';
+import { PlacingCardEvent } from '../events/PlacingCardEvent';
 
 export type Player = {
 	id: string;
@@ -8,34 +8,13 @@ export type Player = {
 	score: number;
 	cardsInHand: Card[];
 	// ----
-	placeCard: (card: Card, board: Board, positionIndex: number) => void;
+	placeCard: (card: Card, positionIndex: number) => void;
 	compare: (player: Player) => boolean;
 };
 
-const placeCard = function (this: Player, card: Card, board: Board, positionIndex: number) {
-	const isPlayerTurn = board.turn === this;
-	if (!isPlayerTurn) {
-		throw new Error('It is not your turn');
-	}
-
-	const cardOwned = this.cardsInHand.some((c) => c.compare(card));
-	if (!cardOwned) {
-		throw new Error('Player does not own the card');
-	}
-
-	const isPositionIndexOutOfBounds = positionIndex < 0 || positionIndex >= 10;
-	if (isPositionIndexOutOfBounds) {
-		throw new Error('Position is out of bounds');
-	}
-
-	const isPositionEmpty = board.placedCards[positionIndex] === undefined;
-	if (!isPositionEmpty) {
-		throw new Error('Position is already occupied');
-	}
-
-	this.cardsInHand = this.cardsInHand.filter((c) => !c.compare(card));
-	board.placedCards[positionIndex] = { card: card, player: this };
-	board.events.cardPlaced.emit({ card, player: this, position: positionIndex });
+const placeCard = function (this: Player, card: Card, positionIndex: number) {
+	PlacingCardEvent.emit({ card, player: this, position: positionIndex });
+	// board.events.cardPlaced.emit({ card, player: this, position: positionIndex });
 };
 
 export type PlayerBuilder = Builder<Player> & {

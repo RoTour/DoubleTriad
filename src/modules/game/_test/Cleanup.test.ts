@@ -3,6 +3,8 @@ import { BoardBuilder } from '../aggregates/Board';
 import { GameEngineBuilder } from '../aggregates/GameEngine';
 import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder } from '../entities/Card';
+import { BattleStartedEvent } from '../events/BattleStartedEvent';
+import { BattleWonEvent } from '../events/BattleWonEvent';
 
 describe('Unit: GameEngine Cleanup', () => {
 	it('should remove battleStarted event subscribers', () => {
@@ -12,7 +14,7 @@ describe('Unit: GameEngine Cleanup', () => {
 		engine.events.battleStarted.subscribe(() => (called = true));
 
 		engine.cleanUp();
-		engine.events.battleStarted.emit({
+		BattleStartedEvent.emit({
 			fighter: { card: CardBuilder().build(), player: PlayerBuilder().build() },
 			defenders: {
 				top: { card: CardBuilder().build(), player: PlayerBuilder().build() },
@@ -32,7 +34,7 @@ describe('Unit: GameEngine Cleanup', () => {
 		engine.events.battleEnded.subscribe(() => (called = true));
 
 		engine.cleanUp();
-		engine.events.battleEnded.emit({
+		BattleWonEvent.emit({
 			winner: { card: CardBuilder().build(), player: PlayerBuilder().build() },
 			loser: { card: CardBuilder().build(), player: PlayerBuilder().build() }
 		});
@@ -62,7 +64,7 @@ describe('Unit: Board Cleanup', () => {
 		engine.board.onCardPlaced(() => (called = true));
 
 		engine.cleanUp();
-		player.placeCard(playerDeck[0], engine.board, 0);
+		player.placeCard(playerDeck[0], 0);
 
 		expect(called).toBe(false);
 	});

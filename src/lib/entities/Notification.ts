@@ -1,6 +1,6 @@
 import { NewNotificationEvent } from '$lib/events/NewNotificationEvent';
 import { IdGenerator } from '$lib/utils/IdGenerator';
-import type { Builder } from './Builder';
+import type { Builder } from '../utils/Builder';
 
 export type Notification = {
 	id: string;

@@ -1,6 +1,7 @@
-import type { Builder } from '$lib/entities/Builder';
-import { EventManager } from '$lib/entities/EventManager';
+import type { Builder } from '$lib/utils/Builder';
+import { EventManager } from '$lib/utils/events/EventManager';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
+import { PlacingCardEvent } from '../events/PlacingCardEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
 import type { PlacedCard } from './PlacedCard';
 import { PlayerBuilder, type Player } from './Player';
@@ -13,7 +14,8 @@ export type Board = {
 	placedCards: PlacedCard[];
 	turn: Player;
 	events: {
-		cardPlaced: EventManager<CardPlacedEvent.Data>;
+		placingCard: PlacingCardEvent.Pool;
+		cardPlaced: CardPlacedEvent.Pool;
 		turnChanged: EventManager<TurnChangedEvent.Data>;
 	};
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
@@ -29,15 +31,16 @@ export type BoardBuilder = Builder<Board, BoardInit> & {
 };
 
 export const BoardBuilder = (): BoardBuilder => {
-	const _leftPlayer = PlayerBuilder().build();
-	const _rightPlayer = PlayerBuilder().build();
+	const _defaultLeftPlayer = PlayerBuilder().build();
+	const _defaultRightPlayer = PlayerBuilder().build();
 	const board: Board = {
-		leftPlayer: _leftPlayer,
-		rightPlayer: _rightPlayer,
+		leftPlayer: _defaultLeftPlayer,
+		rightPlayer: _defaultRightPlayer,
 		placedCards: [],
-		turn: _leftPlayer,
+		turn: _defaultLeftPlayer,
 		events: {
-			cardPlaced: CardPlacedEvent.Manager(),
+			placingCard: PlacingCardEvent.getPool(),
+			cardPlaced: CardPlacedEvent.getPool(),
 			turnChanged: TurnChangedEvent.Manager()
 		},
 		onCardPlaced: function (fn) {
@@ -47,7 +50,10 @@ export const BoardBuilder = (): BoardBuilder => {
 			this.events.turnChanged.subscribe(fn);
 		},
 		cleanUp: function () {
-			this.events.cardPlaced.unsubscribeAll();
+			PlacingCardEvent.clearPool(this.events.placingCard.id);
+			CardPlacedEvent.clearPool(this.events.cardPlaced.id);
+			// this.events.placingCard.unsubscribeAll();
+			// this.events.cardPlaced.unsubscribeAll();
 			this.events.turnChanged.unsubscribeAll();
 		}
 	};
@@ -75,12 +81,53 @@ export const BoardBuilder = (): BoardBuilder => {
 				init?.turn || (Math.random() < 0.5 ? board.leftPlayer : board.rightPlayer);
 			board.turn = firstPlayerToPlay;
 
+			board.events.placingCard.subscribe(({ card, player, position }) => {
+				console.debug('Placing card on board');
+				const isPlayerOnThisBoard =
+					board.leftPlayer.compare(player) || board.rightPlayer.compare(player);
+				console.debug('isPlayerOnThisBoard', isPlayerOnThisBoard);
+				if (!isPlayerOnThisBoard) return;
+
+				const isPlayerTurn = board.turn.compare(player);
+				if (!isPlayerTurn) {
+					console.debug('It is not your turn');
+					throw new Error('It is not your turn');
+				}
+
+				const cardOwned = player.cardsInHand.some((c) => c.compare(card));
+				if (!cardOwned) {
+					console.debug('Player does not own the card');
+					throw new Error('Player does not own the card');
+				}
+
+				const isPositionIndexOutOfBounds = position < 0 || position >= 10;
+				if (isPositionIndexOutOfBounds) {
+					console.debug('Position is out of bounds');
+					throw new Error('Position is out of bounds');
+				}
+
+				const isPositionEmpty = board.placedCards[position] === undefined;
+				if (!isPositionEmpty) {
+					console.debug('Position is already occupied');
+					throw new Error('Position is already occupied');
+				}
+
+				player.cardsInHand = player.cardsInHand.filter((c) => !c.compare(card));
+				board.placedCards[position] = { card: card, player: player };
+				CardPlacedEvent.emit({ card, player, position });
+				console.debug('CardPlacedEvent emitted');
+			});
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
 				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
 				board.events.turnChanged.emit({ player: board.turn });
 			});
 
+			console.debug('BOARD BUILT', {
+				cardPlacedPoolId: board.events.cardPlaced.id,
+				placingCardsEventPools: PlacingCardEvent.Manager.pools,
+				firstTurn: board.turn
+			});
 			return board;
 		}
 	};

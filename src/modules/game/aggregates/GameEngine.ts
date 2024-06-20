@@ -1,4 +1,4 @@
-import type { Builder } from '$lib/entities/Builder';
+import type { Builder } from '$lib/utils/Builder';
 import { BattleStartedEvent, type AdjacentEnemeies } from '../events/BattleStartedEvent';
 import { BattleWonEvent } from '../events/BattleWonEvent';
 import type { CardPlacedEvent } from '../events/CardPlacedEvent';
@@ -18,9 +18,9 @@ import type { Player } from './Player';
 export type GameEngine = {
 	board: Board;
 	events: {
-		battleStarted: BattleStartedEvent.Manager;
-		battleEnded: BattleWonEvent.Manager;
-		endOfGame: EndOfGameEvent.Manager;
+		battleStarted: BattleStartedEvent.Pool;
+		battleEnded: BattleWonEvent.Pool;
+		endOfGame: EndOfGameEvent.Pool;
 	};
 	detectAdjacentEnemies: (board: Board, player: Player, position: number) => AdjacentEnemeies;
 	calculateCardsBeaten: (placedCard: PlacedCard, adjacentEnemies: AdjacentEnemeies) => PlacedCard[];
@@ -40,9 +40,9 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 	const engine: GameEngine = {
 		board: BoardBuilder().build(),
 		events: {
-			battleStarted: BattleStartedEvent.Manager(),
-			battleEnded: BattleWonEvent.Manager(),
-			endOfGame: EndOfGameEvent.Manager()
+			battleStarted: BattleStartedEvent.getPool(),
+			battleEnded: BattleWonEvent.getPool(),
+			endOfGame: EndOfGameEvent.getPool()
 		},
 		detectAdjacentEnemies: (board: Board, player: Player, position: number): AdjacentEnemeies => {
 			const isAgainstLeftWall = position % 3 === 0;
@@ -79,6 +79,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			placedCard.forEach((card) => (card.player = newOwner));
 		},
 		handleEndOfGame: function () {
+			console.debug('Checking for end of game');
 			const cards = engine.board.placedCards;
 			const isBoardFull =
 				cards.length === 9 &&
@@ -94,7 +95,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			if (!isBoardFull) return;
 			const isDraw = engine.board.leftPlayer.score === engine.board.rightPlayer.score;
 			if (isDraw) {
-				engine.events.endOfGame.emit({
+				EndOfGameEvent.emit({
 					isDraw: true,
 					players: [engine.board.leftPlayer, engine.board.rightPlayer]
 				});
@@ -110,7 +111,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 					? engine.board.leftPlayer
 					: engine.board.rightPlayer;
 
-			engine.events.endOfGame.emit({
+			EndOfGameEvent.emit({
 				isDraw: false,
 				winner: { player: winner, score: winner.score },
 				loser: { player: loser, score: loser.score }
@@ -123,6 +124,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			engine.events.endOfGame.subscribe(fn);
 		},
 		checkForBattle: ({ card, player, position }) => {
+			console.debug('Checking for battle');
 			const adjacentEnemies = engine.detectAdjacentEnemies(engine.board, player, position);
 			if (
 				!adjacentEnemies.top &&
@@ -132,15 +134,15 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			) {
 				return;
 			}
-			engine.events.battleStarted.emit({
+			BattleStartedEvent.emit({
 				fighter: { player, card },
 				defenders: adjacentEnemies
 			});
 		},
 		cleanUp: () => {
-			engine.events.battleStarted.unsubscribeAll();
-			engine.events.battleEnded.unsubscribeAll();
-			engine.events.endOfGame.unsubscribeAll();
+			BattleStartedEvent.clearPool(engine.events.battleStarted.id);
+			EndOfGameEvent.clearPool(engine.events.endOfGame.id);
+			BattleWonEvent.clearPool(engine.events.battleEnded.id);
 			engine.board.cleanUp();
 		}
 	};
@@ -159,7 +161,7 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			engine.events.battleStarted.subscribe(({ fighter, defenders }) => {
 				const cardsBeaten = engine.calculateCardsBeaten(fighter, defenders);
 				cardsBeaten.forEach((cardBeaten) => {
-					engine.events.battleEnded.emit({
+					BattleWonEvent.emit({
 						winner: fighter,
 						loser: cardBeaten
 					});

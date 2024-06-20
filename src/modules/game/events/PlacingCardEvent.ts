@@ -1,8 +1,9 @@
-import { Event, type EventPool } from '$lib/utils/events/EventPool';
+import type { EventPool } from '$lib/utils/events/EventPool';
 import type { Player } from '../aggregates/Player';
 import type { Card } from '../entities/Card';
+import { Event } from '$lib/utils/events/EventPool';
 
-export namespace CardPlacedEvent {
+export namespace PlacingCardEvent {
 	export type Data = {
 		card: Card;
 		player: Player;

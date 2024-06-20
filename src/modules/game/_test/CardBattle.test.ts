@@ -9,14 +9,12 @@ import type { AdjacentEnemeies } from '../events/BattleStartedEvent';
 describe('Unit:GameEngine', () => {
 	let leftPlayerBuilder: PlayerBuilder;
 	let rightPlayerBuilder: PlayerBuilder;
-	// let placedCard: Card;
 	let board: Board;
 	let engine: GameEngine;
 
 	beforeEach(() => {
 		leftPlayerBuilder = PlayerBuilder().withId('1').withName('Left player').withScore(0);
 		rightPlayerBuilder = PlayerBuilder().withId('2').withName('Right player').withScore(0);
-		// placedCard = CardBuilder().build();
 		board?.cleanUp();
 		engine?.cleanUp();
 	});
@@ -162,8 +160,8 @@ describe('Unit:GameEngine', () => {
 		# R #		=> 	# L #
 		# # #   		# # #
 		*/
-		leftPlayer.placeCard(leftPlayerDeck[0], board, 1);
-		rightPlayer.placeCard(rightPlayerDeck[0], board, 4);
+		leftPlayer.placeCard(leftPlayerDeck[0], 1);
+		rightPlayer.placeCard(rightPlayerDeck[0], 4);
 
 		expect(engine.board.placedCards[1].player.name).toBe(rightPlayer.name);
 		expect(engine.board.placedCards[4].player.name).toBe(rightPlayer.name);
@@ -184,6 +182,7 @@ describe('Unit:GameEngine', () => {
 		const leftPlayer = leftPlayerBuilder.withCardsInHand([lastCard]).build();
 		const rightPlayer = rightPlayerBuilder.build();
 		board = BoardBuilder()
+			.withLeftPlayer(leftPlayer)
 			.withExistingCardPlayed(0, { card: cardsOnBoard[0], player: leftPlayer })
 			.withExistingCardPlayed(1, { card: cardsOnBoard[1], player: rightPlayer })
 			.withExistingCardPlayed(2, { card: cardsOnBoard[2], player: leftPlayer })
@@ -200,7 +199,7 @@ describe('Unit:GameEngine', () => {
 			gameEnded = true;
 		});
 
-		leftPlayer.placeCard(lastCard, board, 8);
+		leftPlayer.placeCard(lastCard, 8);
 
 		expect(gameEnded).toBe(true);
 	});

@@ -1,4 +1,4 @@
-import type { Builder } from '$lib/entities/Builder';
+import type { Builder } from '$lib/utils/Builder';
 import { IdGenerator } from '$lib/utils/IdGenerator';
 
 export type Card = {

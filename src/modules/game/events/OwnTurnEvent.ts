@@ -1,9 +1,9 @@
 import { EventManager } from '$lib/utils/events/EventManager';
-import type { Notification } from '../entities/Notification';
+import type { Player } from '../aggregates/Player';
 
-export namespace NewNotificationEvent {
+export namespace OwnTurnEvent {
 	export type Data = {
-		notification: Notification;
+		player: Player;
 	};
 	export type Manager = EventManager<Data>;
 	export const Manager = () => EventManager<Data>();

@@ -1,4 +1,4 @@
-import { EventManager } from '$lib/entities/EventManager';
+import { EventManager } from '$lib/utils/events/EventManager';
 import type { Player } from '../aggregates/Player';
 
 export namespace TurnChangedEvent {

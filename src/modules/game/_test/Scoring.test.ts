@@ -24,7 +24,7 @@ describe('Unit:Scoring', () => {
 			.build({ turn: rightPlayer });
 		engine = GameEngineBuilder().withBoard(board).build();
 
-		rightPlayer.placeCard(winningCard, board, 4);
+		rightPlayer.placeCard(winningCard, 4);
 
 		expect(rightPlayer.score).toBe(6);
 		expect(leftPlayer.score).toBe(4);
