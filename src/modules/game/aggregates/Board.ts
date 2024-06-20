@@ -1,5 +1,5 @@
 import type { Builder } from '$lib/utils/Builder';
-import { EventManager } from '$lib/utils/events/EventManager';
+import type { Card } from '../entities/Card';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { PlacingCardEvent } from '../events/PlacingCardEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
@@ -16,7 +16,7 @@ export type Board = {
 	events: {
 		placingCard: PlacingCardEvent.Pool;
 		cardPlaced: CardPlacedEvent.Pool;
-		turnChanged: EventManager<TurnChangedEvent.Data>;
+		turnChanged: TurnChangedEvent.Pool;
 	};
 	onCardPlaced: (fn: (data: CardPlacedEvent.Data) => void) => void;
 	onTurnChanged: (fn: (data: TurnChangedEvent.Data) => void) => void;
@@ -41,7 +41,7 @@ export const BoardBuilder = (): BoardBuilder => {
 		events: {
 			placingCard: PlacingCardEvent.getPool(),
 			cardPlaced: CardPlacedEvent.getPool(),
-			turnChanged: TurnChangedEvent.Manager()
+			turnChanged: TurnChangedEvent.getPool()
 		},
 		onCardPlaced: function (fn) {
 			this.events.cardPlaced.subscribe(fn);
@@ -52,9 +52,9 @@ export const BoardBuilder = (): BoardBuilder => {
 		cleanUp: function () {
 			PlacingCardEvent.clearPool(this.events.placingCard.id);
 			CardPlacedEvent.clearPool(this.events.cardPlaced.id);
-			// this.events.placingCard.unsubscribeAll();
-			// this.events.cardPlaced.unsubscribeAll();
-			this.events.turnChanged.unsubscribeAll();
+			TurnChangedEvent.clearPool(this.events.turnChanged.id);
+			this.leftPlayer.cleanUp();
+			this.rightPlayer.cleanUp();
 		}
 	};
 
@@ -81,54 +81,47 @@ export const BoardBuilder = (): BoardBuilder => {
 				init?.turn || (Math.random() < 0.5 ? board.leftPlayer : board.rightPlayer);
 			board.turn = firstPlayerToPlay;
 
-			board.events.placingCard.subscribe(({ card, player, position }) => {
-				console.debug('Placing card on board');
-				const isPlayerOnThisBoard =
-					board.leftPlayer.compare(player) || board.rightPlayer.compare(player);
-				console.debug('isPlayerOnThisBoard', isPlayerOnThisBoard);
-				if (!isPlayerOnThisBoard) return;
+			board.events.placingCard.subscribe(({ player, card, position }) =>
+				placeCard(player, card, board, position)
+			);
 
-				const isPlayerTurn = board.turn.compare(player);
-				if (!isPlayerTurn) {
-					console.debug('It is not your turn');
-					throw new Error('It is not your turn');
-				}
-
-				const cardOwned = player.cardsInHand.some((c) => c.compare(card));
-				if (!cardOwned) {
-					console.debug('Player does not own the card');
-					throw new Error('Player does not own the card');
-				}
-
-				const isPositionIndexOutOfBounds = position < 0 || position >= 10;
-				if (isPositionIndexOutOfBounds) {
-					console.debug('Position is out of bounds');
-					throw new Error('Position is out of bounds');
-				}
-
-				const isPositionEmpty = board.placedCards[position] === undefined;
-				if (!isPositionEmpty) {
-					console.debug('Position is already occupied');
-					throw new Error('Position is already occupied');
-				}
-
-				player.cardsInHand = player.cardsInHand.filter((c) => !c.compare(card));
-				board.placedCards[position] = { card: card, player: player };
-				CardPlacedEvent.emit({ card, player, position });
-				console.debug('CardPlacedEvent emitted');
-			});
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
 				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
-				board.events.turnChanged.emit({ player: board.turn });
+				TurnChangedEvent.emit({ player: board.turn });
 			});
 
-			console.debug('BOARD BUILT', {
-				cardPlacedPoolId: board.events.cardPlaced.id,
-				placingCardsEventPools: PlacingCardEvent.Manager.pools,
-				firstTurn: board.turn
-			});
+			TurnChangedEvent.emit({ player: board.turn });
 			return board;
 		}
 	};
+};
+
+const placeCard = (player: Player, card: Card, board: Board, position: number) => {
+	const isPlayerOnThisBoard = board.leftPlayer.compare(player) || board.rightPlayer.compare(player);
+	if (!isPlayerOnThisBoard) return;
+
+	const isPlayerTurn = board.turn.compare(player);
+	if (!isPlayerTurn) {
+		throw new Error('It is not your turn');
+	}
+
+	const cardOwned = player.cardsInHand.some((c) => c.compare(card));
+	if (!cardOwned) {
+		throw new Error('Player does not own the card');
+	}
+
+	const isPositionIndexOutOfBounds = position < 0 || position >= 10;
+	if (isPositionIndexOutOfBounds) {
+		throw new Error('Position is out of bounds');
+	}
+
+	const isPositionEmpty = board.placedCards[position] === undefined;
+	if (!isPositionEmpty) {
+		throw new Error('Position is already occupied');
+	}
+
+	player.cardsInHand = player.cardsInHand.filter((c) => !c.compare(card));
+	board.placedCards[position] = { card: card, player: player };
+	CardPlacedEvent.emit({ card, player, position });
 };

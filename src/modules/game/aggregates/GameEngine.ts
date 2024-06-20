@@ -79,7 +79,6 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			placedCard.forEach((card) => (card.player = newOwner));
 		},
 		handleEndOfGame: function () {
-			console.debug('Checking for end of game');
 			const cards = engine.board.placedCards;
 			const isBoardFull =
 				cards.length === 9 &&
@@ -124,7 +123,6 @@ export const GameEngineBuilder = (): GameEngineBuilder => {
 			engine.events.endOfGame.subscribe(fn);
 		},
 		checkForBattle: ({ card, player, position }) => {
-			console.debug('Checking for battle');
 			const adjacentEnemies = engine.detectAdjacentEnemies(engine.board, player, position);
 			if (
 				!adjacentEnemies.top &&

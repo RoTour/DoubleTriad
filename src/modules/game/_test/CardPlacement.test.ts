@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { BoardBuilder, type Board } from '../aggregates/Board';
 import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder, type Card } from '../entities/Card';
-import { PlacingCardEvent } from '../events/PlacingCardEvent';
 
 describe('GameEngine', () => {
 	const leftPlayerBuilder = PlayerBuilder().withId('1').withName('Player Left').withScore(0);
@@ -60,7 +59,6 @@ describe('GameEngine', () => {
 	});
 
 	it('should throw an error if the position index is out of bounds', () => {
-		console.debug('Events', { pools: PlacingCardEvent.Manager.pools });
 		leftPlayerBuilder.withCardsInHand([defaultCard]);
 		const leftPlayer = leftPlayerBuilder.build();
 
@@ -78,7 +76,6 @@ describe('GameEngine', () => {
 	});
 
 	it('should throw and error if a card has already been placed in the position', () => {
-		console.debug('Events', { pools: PlacingCardEvent.Manager.pools });
 		const cardToPlace = CardBuilder().build();
 		rightPlayerBuilder.withCardsInHand([cardToPlace]);
 		const leftPlayer = leftPlayerBuilder.build();
@@ -89,8 +86,6 @@ describe('GameEngine', () => {
 			.withExistingCardPlayed(0, { card: defaultCard, player: leftPlayer })
 			.build({ turn: rightPlayer });
 
-		console.debug('turn', board.turn);
-		// leftPlayer.placeCard(placedCard, 0);
 		const secondPlayerTurn = () => rightPlayer.placeCard(cardToPlace, 0);
 
 		expect(secondPlayerTurn).toThrowError('Position is already occupied');
@@ -165,7 +160,7 @@ describe('GameEngine', () => {
 
 		leftPlayer.placeCard(leftPlayerDeck[0], 0);
 		rightPlayer.placeCard(rightPlayerDeck[0], 1);
-		const attemptToPlaceCardTwice = () => leftPlayer.placeCard(leftPlayerDeck[0], board, 2);
+		const attemptToPlaceCardTwice = () => leftPlayer.placeCard(leftPlayerDeck[0], 2);
 
 		expect(attemptToPlaceCardTwice).toThrowError('Player does not own the card');
 	});

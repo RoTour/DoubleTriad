@@ -5,6 +5,8 @@ import { PlayerBuilder } from '../aggregates/Player';
 import { CardBuilder } from '../entities/Card';
 import { BattleStartedEvent } from '../events/BattleStartedEvent';
 import { BattleWonEvent } from '../events/BattleWonEvent';
+import { ComputerPlayerBuilder } from '../aggregates/ComputerPlayer';
+import { TurnChangedEvent } from '../events/TurnChangedEvent';
 
 describe('Unit: GameEngine Cleanup', () => {
 	it('should remove battleStarted event subscribers', () => {
@@ -67,5 +69,20 @@ describe('Unit: Board Cleanup', () => {
 		player.placeCard(playerDeck[0], 0);
 
 		expect(called).toBe(false);
+	});
+});
+
+describe('Unit: Player Cleanup', () => {
+	it('should remove TurnChangedEvent subscribers', () => {
+		const player = ComputerPlayerBuilder().withDelay(10000).build();
+		const board = BoardBuilder().withRightPlayer(player).build({ turn: player });
+
+		let nbOfSubs = TurnChangedEvent.Manager.pools.size;
+		expect(nbOfSubs).toBe(2);
+
+		board.cleanUp();
+
+		nbOfSubs = TurnChangedEvent.Manager.pools.size;
+		expect(nbOfSubs).toBe(0);
 	});
 });

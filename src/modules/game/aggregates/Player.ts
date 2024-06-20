@@ -10,6 +10,7 @@ export type Player = {
 	// ----
 	placeCard: (card: Card, positionIndex: number) => void;
 	compare: (player: Player) => boolean;
+	cleanUp: () => void;
 };
 
 const placeCard = function (this: Player, card: Card, positionIndex: number) {
@@ -32,7 +33,8 @@ export const PlayerBuilder = (): PlayerBuilder => {
 		cardsInHand: [],
 		// ----
 		placeCard,
-		compare
+		compare,
+		cleanUp: () => {}
 	};
 
 	return {
