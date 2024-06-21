@@ -3,7 +3,7 @@ import type { Card } from '../entities/Card';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { PlacingCardEvent } from '../events/PlacingCardEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
-import type { Grid } from './Grid';
+import { GridBuilder, type Grid } from './Grid';
 import type { PlacedCard } from './PlacedCard';
 import { PlayerBuilder, type Player } from './Player';
 
@@ -37,7 +37,7 @@ export const BoardBuilder = (): BoardBuilder => {
 	const board: Board = {
 		leftPlayer: _defaultLeftPlayer,
 		rightPlayer: _defaultRightPlayer,
-		placedCards: [],
+		placedCards: GridBuilder().ofSize(9).build(),
 		turn: _defaultLeftPlayer,
 		events: {
 			placingCard: PlacingCardEvent.getPool(),
@@ -117,7 +117,7 @@ const placeCard = (player: Player, card: Card, board: Board, position: number) =
 		throw new Error('Position is out of bounds');
 	}
 
-	const isPositionEmpty = board.placedCards[position] === undefined;
+	const isPositionEmpty = !board.placedCards[position];
 	if (!isPositionEmpty) {
 		throw new Error('Position is already occupied');
 	}

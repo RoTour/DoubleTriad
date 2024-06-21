@@ -93,6 +93,7 @@ export namespace OffensiveStrategy {
 					player.cardsInHand,
 					player
 				);
+				console.debug({ bestMoveByCard });
 				const bestMove = OffensiveStrategy.chooseBestCard(bestMoveByCard);
 
 				return bestMove;

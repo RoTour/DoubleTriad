@@ -44,8 +44,10 @@ export const ComputerPlayerBuilder = (): ComputerPlayerBuilder => {
 			turnChangedEventPool.subscribe(({ player, grid }) => {
 				if (!cp.compare(player)) return;
 				const strategy = () => {
-					if (cp.strategy === 'offensive')
-						return OffensiveStrategy.Strategy().computeMove(grid, cp);
+					if (cp.strategy === 'offensive') {
+						const cardToPlace = OffensiveStrategy.Strategy().computeMove(grid, cp);
+						cp.placeCard(cardToPlace.card, cardToPlace.position);
+					}
 					cp.playRandomly();
 				};
 				if (cp.delay) return setTimeout(() => strategy(), cp.delay);

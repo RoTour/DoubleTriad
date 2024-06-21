@@ -1,4 +1,5 @@
 import { BoardBuilder } from '../../modules/game/aggregates/Board';
+import { ComputerPlayerBuilder } from '../../modules/game/aggregates/ComputerPlayer';
 import { GameEngineBuilder, type GameEngine } from '../../modules/game/aggregates/GameEngine';
 import { PlayerBuilder } from '../../modules/game/aggregates/Player';
 import { CardBuilder, type Card } from '../../modules/game/entities/Card';
@@ -37,7 +38,9 @@ const createNewGameEngine = (): GameEngine => {
 		CardBuilder().withTop(4).withLeft(4).withRight(4).withBottom(4).withName('P. Pogba').build(),
 		CardBuilder().withTop(5).withLeft(5).withRight(5).withBottom(5).withName('A. Griezmann').build()
 	];
-	const leftPlayer = PlayerBuilder()
+	const leftPlayer = ComputerPlayerBuilder()
+		.withDelay(2000)
+		.withStrategy('offensive')
 		.withName('Player RED')
 		.withScore(5)
 		.withId('1')
