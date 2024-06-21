@@ -17,6 +17,7 @@ export type CardBuilder = Builder<Card> & {
 	withTop: (top: number) => CardBuilder;
 	withRight: (right: number) => CardBuilder;
 	withBottom: (bottom: number) => CardBuilder;
+	withAll: (top: number, left: number, right: number, bottom: number) => CardBuilder;
 	withName: (name: string) => CardBuilder;
 };
 
@@ -46,6 +47,13 @@ export const CardBuilder = (): CardBuilder => {
 			return this;
 		},
 		withBottom: function (bottom: number) {
+			card.bottom = bottom;
+			return this;
+		},
+		withAll: function (top: number, left: number, right: number, bottom: number) {
+			card.top = top;
+			card.left = left;
+			card.right = right;
 			card.bottom = bottom;
 			return this;
 		},

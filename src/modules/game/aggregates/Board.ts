@@ -3,6 +3,7 @@ import type { Card } from '../entities/Card';
 import { CardPlacedEvent } from '../events/CardPlacedEvent';
 import { PlacingCardEvent } from '../events/PlacingCardEvent';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
+import type { Grid } from './Grid';
 import type { PlacedCard } from './PlacedCard';
 import { PlayerBuilder, type Player } from './Player';
 
@@ -11,7 +12,7 @@ type BoardInit = { turn: Player };
 export type Board = {
 	leftPlayer: Player;
 	rightPlayer: Player;
-	placedCards: PlacedCard[];
+	placedCards: Grid;
 	turn: Player;
 	events: {
 		placingCard: PlacingCardEvent.Pool;
@@ -88,10 +89,10 @@ export const BoardBuilder = (): BoardBuilder => {
 			// Switch turns after a card is placed
 			board.events.cardPlaced.subscribe(() => {
 				board.turn = board.turn === board.leftPlayer ? board.rightPlayer : board.leftPlayer;
-				TurnChangedEvent.emit({ player: board.turn });
+				TurnChangedEvent.emit({ player: board.turn, grid: board.placedCards });
 			});
 
-			TurnChangedEvent.emit({ player: board.turn });
+			TurnChangedEvent.emit({ player: board.turn, grid: board.placedCards });
 			return board;
 		}
 	};

@@ -1,10 +1,12 @@
 import type { EventPool } from '$lib/utils/events/EventPool';
 import { Event } from '$lib/utils/events/EventPool';
+import type { Grid } from '../aggregates/Grid';
 import type { Player } from '../aggregates/Player';
 
 export namespace TurnChangedEvent {
 	export type Data = {
 		player: Player;
+		grid: Grid;
 	};
 
 	type Manager = Event<Data>;

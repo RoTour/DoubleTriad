@@ -1,5 +1,6 @@
 import type { Builder } from '$lib/utils/Builder';
 import { TurnChangedEvent } from '../events/TurnChangedEvent';
+import { OffensiveStrategy } from '../repositories/OffensiveStrategy';
 import { PlayerBuilder, type Player } from './Player';
 
 export type ComputerPlayerStrategy = 'random' | 'defensive' | 'offensive';
@@ -24,7 +25,9 @@ export const ComputerPlayerBuilder = (): ComputerPlayerBuilder => {
 	const _cp: Omit<ComputerPlayer, keyof Player> & { cleanUp: () => void } = {
 		strategy: 'random',
 		playRandomly,
-		cleanUp: cleanUpCP.bind(null, turnChangedEventPool.id)
+		cleanUp: () => {
+			TurnChangedEvent.clearPool(turnChangedEventPool.id);
+		}
 	};
 	return {
 		...baseBuilder,
@@ -38,10 +41,15 @@ export const ComputerPlayerBuilder = (): ComputerPlayerBuilder => {
 		},
 		build: () => {
 			const cp: ComputerPlayer = { ...baseBuilder.build(), ..._cp };
-			turnChangedEventPool.subscribe(({ player }) => {
+			turnChangedEventPool.subscribe(({ player, grid }) => {
 				if (!cp.compare(player)) return;
-				if (cp.delay) return setTimeout(() => cp.playRandomly(), cp.delay);
-				cp.playRandomly();
+				const strategy = () => {
+					if (cp.strategy === 'offensive')
+						return OffensiveStrategy.Strategy().computeMove(grid, cp);
+					cp.playRandomly();
+				};
+				if (cp.delay) return setTimeout(() => strategy(), cp.delay);
+				strategy();
 			});
 			return cp;
 		}
@@ -55,8 +63,4 @@ function playRandomly(this: ComputerPlayer) {
 	const randomCard = this.cardsInHand[Math.floor(Math.random() * this.cardsInHand.length)];
 	const randomPosition = Math.floor(Math.random() * 10);
 	this.placeCard(randomCard, randomPosition);
-}
-
-function cleanUpCP(poolId: string) {
-	TurnChangedEvent.clearPool(poolId);
 }

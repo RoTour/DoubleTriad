@@ -163,8 +163,8 @@ describe('Unit:GameEngine', () => {
 		leftPlayer.placeCard(leftPlayerDeck[0], 1);
 		rightPlayer.placeCard(rightPlayerDeck[0], 4);
 
-		expect(engine.board.placedCards[1].player.name).toBe(rightPlayer.name);
-		expect(engine.board.placedCards[4].player.name).toBe(rightPlayer.name);
+		expect(engine.board.placedCards[1]?.player.name).toBe(rightPlayer.name);
+		expect(engine.board.placedCards[4]?.player.name).toBe(rightPlayer.name);
 	});
 
 	it('should trigger end of game event when no more cards can be placed', () => {

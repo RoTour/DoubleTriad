@@ -24,7 +24,7 @@ describe('GameEngine', () => {
 
 		leftPlayer.placeCard(defaultCard, 0);
 
-		expect(board.placedCards.map((it) => it.card)).toContain(defaultCard);
+		expect(board.placedCards.map((it) => it?.card)).toContain(defaultCard);
 	});
 
 	it('should place the card in the correct position', () => {

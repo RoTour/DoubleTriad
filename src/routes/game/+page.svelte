@@ -63,7 +63,7 @@
 		const cardToBePlaced = pickedCard.card;
 		if (!turn || !board || !cardToBePlaced) return;
 		try {
-			turn.placeCard(cardToBePlaced, board, idx);
+			turn.placeCard(cardToBePlaced, idx);
 		} catch (e) {
 			pickedCard.set(null);
 			if (e instanceof Error) {

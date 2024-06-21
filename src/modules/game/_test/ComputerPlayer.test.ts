@@ -21,7 +21,7 @@ describe('Unit:ComputerPlayer', () => {
 		const board = BoardBuilder().withLeftPlayer(hp).withRightPlayer(cp).build({ turn: cp });
 		engine = GameEngineBuilder().withBoard(board).build();
 
-		const cpCardHasBeenPlaced = engine.board.placedCards.some((c) => c.card.compare(cpCards[0]));
+		const cpCardHasBeenPlaced = engine.board.placedCards.some((c) => c?.card.compare(cpCards[0]));
 		expect(engine.board.turn).toBe(hp);
 		expect(cpCardHasBeenPlaced).toBe(true);
 	});
@@ -33,8 +33,8 @@ describe('Unit:ComputerPlayer', () => {
 		const board = BoardBuilder().withLeftPlayer(hp).withRightPlayer(cp).build({ turn: cp });
 		engine = GameEngineBuilder().withBoard(board).build();
 
-		// const cpCardHasBeenPlaced = engine.board.placedCards.some((c) => c.card.compare(cpCards[0]));
-		// expect(engine.board.turn).toBe(hp);
-		// expect(cpCardHasBeenPlaced).toBe(true);
+		const cpCardHasBeenPlaced = engine.board.placedCards.some((c) => c?.card.compare(cpCards[0]));
+		expect(engine.board.turn).toBe(hp);
+		expect(cpCardHasBeenPlaced).toBe(true);
 	});
 });
